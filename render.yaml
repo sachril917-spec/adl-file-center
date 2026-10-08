@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: adl-file-center
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    disk:
+      name: adl-data
+      mountPath: /var/data
+      sizeGB: 10
+    envVars:
+      - key: DATA_DIR
+        value: /var/data
