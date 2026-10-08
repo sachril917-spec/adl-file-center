@@ -1,11 +1,12 @@
-ADL WEB ONLINE + BACKBLAZE B2 + RENDER FREE
+ADL File Center - Cloudflare Workers + Backblaze B2
 
-Environment Variables di Render:
+In Cloudflare Worker Settings > Variables and Secrets, add:
 B2_BUCKET = pusat berkas adl
-B2_ENDPOINT = https://s3.us-east-005.backblazeb2.com (sesuaikan endpoint bucket)
-B2_REGION = us-east-005 (sesuaikan region bucket)
-B2_KEY_ID = Key ID Application Key
-B2_APPLICATION_KEY = Application Key/secret
+B2_ENDPOINT = https://s3.us-east-005.backblazeb2.com
+B2_REGION = us-east-005
+B2_KEY_ID = your dedicated Backblaze key ID
+B2_APPLICATION_KEY = your dedicated Backblaze application key (encrypt it)
 
-JANGAN masukkan secret ke GitHub. Masukkan di Environment Variables Render.
-File asli disimpan di B2. XLSX/XLS/CSV/DOCX diproses setelah upload; PDF/foto/ZIP disimpan tetapi belum OCR.
+This first deployment focuses on upload, storage, listing and download.
+Original files are stored in the private Backblaze B2 bucket.
+XLSX/DOCX/PDF parsing and Total Akhir/Plus/Minus calculation will be added after upload/storage is confirmed working.

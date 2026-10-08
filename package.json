@@ -1,17 +1,16 @@
 {
-  "name": "adl-file-center",
-  "version": "2.0.0",
+  "name": "adl-file-center-cloudflare",
+  "version": "1.0.0",
   "private": true,
-  "main": "server.js",
+  "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.900.0",
-    "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "mammoth": "^1.10.0",
-    "multer": "^2.0.2",
-    "xlsx": "^0.18.5"
+    "aws4fetch": "^1.0.20"
+  },
+  "devDependencies": {
+    "wrangler": "^4.45.0"
   }
 }
