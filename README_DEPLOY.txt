@@ -1,22 +1,11 @@
-ADL WEB ONLINE READY
+ADL WEB ONLINE + BACKBLAZE B2 + RENDER FREE
 
-Tujuan:
-- Tidak bergantung pada IP HP pusat.
-- Semua cabang dan pusat mengakses server online yang sama.
-- HP pusat boleh ganti Wi-Fi/data/IP.
-- Cabang boleh berbeda jaringan.
+Environment Variables di Render:
+B2_BUCKET = pusat berkas adl
+B2_ENDPOINT = https://s3.us-east-005.backblazeb2.com (sesuaikan endpoint bucket)
+B2_REGION = us-east-005 (sesuaikan region bucket)
+B2_KEY_ID = Key ID Application Key
+B2_APPLICATION_KEY = Application Key/secret
 
-LINK setelah hosting:
-https://DOMAIN/cabang/  -> untuk 17 cabang
-https://DOMAIN/pusat/   -> untuk pusat
-
-Server menyimpan file ke DATA_DIR:
-Tahun/Bulan/Cabang
-
-File asli tidak digabung. Excel/Word dibaca di server setelah upload.
-Dashboard pusat menampilkan Total Rp. Akhir, Minus, Plus, selisih dan detail.
-
-PENTING:
-Paket ini siap dideploy, tetapi saya tidak bisa membuat domain/hosting publik tanpa akses akun hosting milik Anda.
-Untuk Render, gunakan render.yaml dan persistent disk agar file tidak hilang saat server restart.
-Setelah online, cukup kirim link /cabang/ ke 17 cabang melalui WhatsApp.
+JANGAN masukkan secret ke GitHub. Masukkan di Environment Variables Render.
+File asli disimpan di B2. XLSX/XLS/CSV/DOCX diproses setelah upload; PDF/foto/ZIP disimpan tetapi belum OCR.
