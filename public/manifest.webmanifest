@@ -1,0 +1,13 @@
+
+{
+  "id": "/pusat/",
+  "name": "Pusat Berkas ADL",
+  "short_name": "Berkas ADL",
+  "description": "Pusat berkas seluruh cabang ADL",
+  "start_url": "/pusat/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f2f5fa",
+  "theme_color": "#1769d2"
+}
