@@ -9,5 +9,13 @@
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f2f5fa",
-  "theme_color": "#1769d2"
+  "theme_color": "#1769d2",
+"icons": [
+  {
+    "src": "/icons/adl.svg",
+    "sizes": "any",
+    "type": "image/svg+xml",
+    "purpose": "any maskable"
+  }
+]
 }
