@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="100" fill="#1769d2"/>
+  <path d="M96 300h320v110H96z" fill="#fff" opacity=".95"/>
+  <path d="M150 300l35-100h142l35 100" fill="#fff"/>
+  <path d="M220 110h72v130h-72z" fill="#fff"/>
+  <path d="M180 200l76-76 76 76" fill="none" stroke="#fff" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="256" y="370" font-size="48" font-weight="bold" text-anchor="middle" fill="#1769d2">ADL</text>
+</svg>
