@@ -1,5 +1,5 @@
 import { AwsClient } from "aws4fetch";
-const BRANCHES=["ADL Talang","ADL Karanganyar","ADL Brebes","ADL Tanglog","ADL Bumiayu","ADL Gumayun","Rizky Pustaka","ADL Kaligelnag","ADL Kaliwungu","ADL Weleri","ADL Kedungwuni","Toko Foto FC Dicky","ADL Ketanggungan","ADL Debong","ADL Mejasem","ADL Ajibarang","ADL Bandar"];
+const BRANCHES=["ADL Talang","ADL Karanganyar","ADL Brebes","ADL Tanglog","ADL Bumiayu","ADL Gumayun","Rizky Pustaka","ADL Kaligelang","ADL Kaliwungu","ADL Weleri","ADL Kedungwuni","Toko Foto FC Dicky","ADL Ketanggungan","ADL Debong","ADL Mejasem","ADL Ajibarang","ADL Bandar"];
 const H={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET,POST,OPTIONS","Access-Control-Allow-Headers":"Content-Type"};
 const J=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{...H,"Content-Type":"application/json;charset=utf-8"}});
 const clean=x=>String(x||"").trim().replace(/[^\p{L}\p{N}._ -]+/gu,"_").replace(/\s+/g,"_");
