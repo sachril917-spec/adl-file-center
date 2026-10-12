@@ -1,1 +1,7 @@
-"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#1769d2"/><path d="M100 220 256 90l156 130v190H100z" fill="#fff"/><path d="M190 410V270h132v140" fill="#1769d2"/><text x="256" y="245" font-size="58" font-weight="bold" text-anchor="middle" fill="#1769d2">ADL</text></svg>"
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" rx="100" fill="#1769d2"/>
+<path d="M256 70 L390 190 L360 190 L360 330 L152 330 L152 190 L122 190 Z" fill="#ffffff"/>
+<path d="M190 330 L190 250 L322 250 L322 330 Z" fill="#1769d2"/>
+<path d="M110 350 H402 L430 410 H82 Z" fill="#ffffff"/>
+<text x="256" y="390" font-size="48" font-weight="bold" text-anchor="middle" fill="#1769d2">PUSAT</text>
+</svg>
