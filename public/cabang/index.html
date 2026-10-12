@@ -1,1 +1,77 @@
-<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Kirim Berkas</title><style>body{font-family:Arial;background:#f5f6f8;padding:15px}main{max-width:650px;margin:auto;background:white;padding:18px;border-radius:14px}label{display:block;margin-top:14px;font-weight:bold}select,input,button{width:100%;box-sizing:border-box;padding:13px;margin-top:7px;border:1px solid #ccc;border-radius:9px;font-size:16px}button{background:#1677e8;color:white;border:0;font-weight:bold}</style><main><h2>📤 Kirim Berkas ke Pusat</h2><label>Cabang</label><select id=b></select><label>Jenis laporan</label><input id=t placeholder="Contoh: Laporan Penjualan"><label>File</label><input id=f type=file><button onclick=send()>Kirim Berkas</button><p id=m></p></main><script>fetch('/api/branches').then(r=>r.json()).then(x=>x.branches.forEach(v=>b.add(new Option(v,v))));async function send(){let f=document.querySelector('#f').files[0];if(!f)return alert('Pilih file dulu');let d=new FormData;d.append('branch',b.value);d.append('reportType',t.value||'Berkas');d.append('file',f);m.textContent='Mengirim...';let r=await fetch('/api/upload',{method:'POST',body:d});let x=await r.json();m.textContent=x.ok?'✅ Berhasil dikirim ke pusat.':'❌ '+(x.error||'Gagal')}</script>
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#075be8">
+<title>ADL CABANG — Kirim Berkas</title>
+<link rel="manifest" href="/cabang/manifest.webmanifest">
+<link rel="icon" href="/icons/adl-cabang-192.png" type="image/png">
+<style>
+:root{color-scheme:light;--blue:#075be8;--navy:#08265c;--bg:#f2f6ff}
+*{box-sizing:border-box}
+body{margin:0;padding:18px;font-family:Arial,sans-serif;background:linear-gradient(160deg,#e8f1ff,#f7f9fc);color:#172033;min-height:100vh}
+main{max-width:620px;margin:18px auto;background:#fff;padding:22px;border-radius:20px;box-shadow:0 12px 34px #08265c18}
+.brand{display:flex;align-items:center;gap:13px;margin-bottom:18px}
+.brand img{width:62px;height:62px;object-fit:contain;border-radius:16px}
+h1{font-size:24px;margin:0;color:var(--navy)}
+.sub{margin:6px 0 0;color:#64748b;font-size:14px}
+label{display:block;margin-top:18px;font-weight:700;font-size:14px}
+select,input,button{display:block;width:100%;margin-top:8px;padding:14px;border:1px solid #cbd5e1;border-radius:12px;font-size:16px;background:white}
+input[type=file]{padding:11px}
+button{background:var(--blue);color:white;border:0;font-weight:700;cursor:pointer}
+button:disabled{opacity:.65}
+#msg{padding:12px;border-radius:10px;background:#f1f5f9;min-height:20px;overflow-wrap:anywhere}
+.note{font-size:12px;color:#64748b;line-height:1.5;margin-top:16px}
+</style>
+</head>
+<body>
+<main>
+<div class="brand">
+<img src="/icons/adl-cabang-192.png" alt="Logo ADL Cabang">
+<div><h1>Kirim Berkas ADL</h1><p class="sub">Kirim laporan cabang ke pusat</p></div>
+</div>
+<form id="uploadForm">
+<label for="b">Cabang</label>
+<select id="b" name="branch" required><option value="">Memuat daftar cabang...</option></select>
+<label for="t">Jenis laporan</label>
+<input id="t" name="reportType" placeholder="Contoh: Laporan Penjualan">
+<label for="f">Pilih file</label>
+<input id="f" name="file" type="file" required>
+<button id="sendBtn" type="submit">Kirim Berkas ke Pusat</button>
+</form>
+<p id="msg" role="status" aria-live="polite">Siap mengirim berkas.</p>
+<p class="note">Pastikan cabang dan file sudah benar sebelum mengirim. Jangan tutup halaman saat proses pengiriman berlangsung.</p>
+</main>
+<script>
+const branchSelect=document.getElementById('b');
+const form=document.getElementById('uploadForm');
+const message=document.getElementById('msg');
+const sendBtn=document.getElementById('sendBtn');
+fetch('/api/branches').then(async r=>{if(!r.ok)throw new Error('Daftar cabang tidak dapat dimuat');return r.json()})
+.then(data=>{branchSelect.innerHTML='<option value="">Pilih cabang...</option>';(data.branches||[]).forEach(name=>branchSelect.add(new Option(name,name)));})
+.catch(()=>{branchSelect.innerHTML='<option value="">Daftar cabang gagal dimuat</option>';message.textContent='Gagal memuat daftar cabang. Periksa koneksi lalu muat ulang halaman.';});
+form.addEventListener('submit',async event=>{
+ event.preventDefault();
+ const file=document.getElementById('f').files[0];
+ if(!file){message.textContent='Pilih file terlebih dahulu.';return;}
+ if(!branchSelect.value){message.textContent='Pilih cabang terlebih dahulu.';return;}
+ const data=new FormData();
+ data.append('branch',branchSelect.value);
+ data.append('reportType',document.getElementById('t').value.trim()||'Berkas');
+ data.append('file',file);
+ sendBtn.disabled=true;message.textContent='Mengirim berkas...';
+ try{
+  const response=await fetch('/api/upload',{method:'POST',body:data});
+  const result=await response.json();
+  if(!response.ok||!result.ok)throw new Error(result.error||'Pengiriman gagal');
+  message.textContent='✅ Berhasil dikirim ke pusat.';
+  form.reset();
+  branchSelect.selectedIndex=0;
+ }catch(error){message.textContent='❌ '+(error.message||'Gagal mengirim berkas.');}
+ finally{sendBtn.disabled=false;}
+});
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}
+</script>
+</body>
+</html>
