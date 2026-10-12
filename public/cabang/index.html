@@ -51,25 +51,65 @@ const sendBtn=document.getElementById('sendBtn');
 fetch('/api/branches').then(async r=>{if(!r.ok)throw new Error('Daftar cabang tidak dapat dimuat');return r.json()})
 .then(data=>{branchSelect.innerHTML='<option value="">Pilih cabang...</option>';(data.branches||[]).forEach(name=>branchSelect.add(new Option(name,name)));})
 .catch(()=>{branchSelect.innerHTML='<option value="">Daftar cabang gagal dimuat</option>';message.textContent='Gagal memuat daftar cabang. Periksa koneksi lalu muat ulang halaman.';});
-form.addEventListener('submit',async event=>{
- event.preventDefault();
- const file=document.getElementById('f').files[0];
- if(!file){message.textContent='Pilih file terlebih dahulu.';return;}
- if(!branchSelect.value){message.textContent='Pilih cabang terlebih dahulu.';return;}
- const data=new FormData();
- data.append('branch',branchSelect.value);
- data.append('reportType',document.getElementById('t').value.trim()||'Berkas');
- data.append('file',file);
- sendBtn.disabled=true;message.textContent='Mengirim berkas...';
- try{
-  const response=await fetch('/api/upload',{method:'POST',body:data});
-  const result=await response.json();
-  if(!response.ok||!result.ok)throw new Error(result.error||'Pengiriman gagal');
-  message.textContent='✅ Berhasil dikirim ke pusat.';
-  form.reset();
-  branchSelect.selectedIndex=0;
- }catch(error){message.textContent='❌ '+(error.message||'Gagal mengirim berkas.');}
- finally{sendBtn.disabled=false;}
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+
+  const files = document.getElementById('f').files;
+
+  if (!files.length) {
+    message.textContent = 'Pilih file terlebih dahulu.';
+    return;
+  }
+
+  if (!branchSelect.value) {
+    message.textContent = 'Pilih cabang terlebih dahulu.';
+    return;
+  }
+
+  sendBtn.disabled = true;
+  let berhasil = 0;
+  let gagal = 0;
+
+  try {
+    for (let i = 0; i < files.length; i++) {
+      const data = new FormData();
+      data.append('branch', branchSelect.value);
+      data.append(
+        'reportType',
+        document.getElementById('t').value.trim() || 'Berkas'
+      );
+      data.append('file', files[i]);
+
+      message.textContent =
+        `Mengirim file ${i + 1} dari ${files.length}...`;
+
+      try {
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: data
+        });
+        const result = await response.json();
+
+        if (!response.ok || !result.ok) {
+          gagal++;
+        } else {
+          berhasil++;
+        }
+      } catch (error) {
+        gagal++;
+      }
+    }
+
+    message.textContent =
+      `Selesai. Berhasil: ${berhasil}, gagal: ${gagal}.`;
+
+    if (gagal === 0) {
+      form.reset();
+      branchSelect.selectedIndex = 0;
+    }
+  } finally {
+    sendBtn.disabled = false;
+  }
 });
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}
 </script>
