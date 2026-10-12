@@ -1,80 +1,78 @@
-<!doctype html>
-<html lang="id">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#075be8">
-<title>ADL CABANG — Kirim Berkas</title>
-<link rel="manifest" href="/cabang/manifest.webmanifest">
-<link rel="icon" href="/icons/adl-cabang-192.png" type="image/png">
-<style>
-:root{color-scheme:light;--blue:#075be8;--navy:#08265c;--bg:#f2f6ff}
-*{box-sizing:border-box}body{margin:0;padding:18px;font-family:Arial,sans-serif;background:linear-gradient(160deg,#e8f1ff,#f7f9fc);color:#172033;min-height:100vh}
-main{max-width:620px;margin:18px auto;background:#fff;padding:22px;border-radius:20px;box-shadow:0 12px 34px #08265c18}
-.brand{display:flex;align-items:center;gap:13px;margin-bottom:18px}.brand img{width:62px;height:62px;object-fit:contain;border-radius:16px}
-h1{font-size:24px;margin:0;color:var(--navy)}h2{font-size:19px;margin:0 0 8px;color:var(--navy)}
-.sub{margin:6px 0 0;color:#64748b;font-size:14px;line-height:1.5}
-label{display:block;margin-top:18px;font-weight:700;font-size:14px}
-select,input,button{display:block;width:100%;margin-top:8px;padding:14px;border:1px solid #cbd5e1;border-radius:12px;font-size:16px;background:white}
-input[type=file]{padding:11px}button{background:var(--blue);color:white;border:0;font-weight:700;cursor:pointer}button:disabled{opacity:.65}
-#msg,.status{padding:12px;border-radius:10px;background:#f1f5f9;min-height:20px;overflow-wrap:anywhere;line-height:1.5}
-.note{font-size:12px;color:#64748b;line-height:1.5;margin-top:16px}
-.card{border:1px solid #e5eaf2;border-radius:16px;padding:16px;margin-top:18px}
-.status.ok{background:#e6f7ed;color:#166534}.status.wait{background:#fff0e8;color:#9a3412}.status.err{background:#fff0f0;color:#b42318}
-</style>
-</head>
-<body>
-<main>
-<div class="brand"><img src="/icons/adl-cabang-192.png" alt="Logo ADL Cabang"><div><h1>Kirim Berkas ADL</h1><p class="sub">Kirim laporan cabang ke pusat</p></div></div>
-<form id="uploadForm">
-<label for="b">Cabang</label><select id="b" name="branch" required><option value="">Memuat daftar cabang...</option></select>
-<label for="category">Kategori laporan</label>
-<select id="category" required>
-<option value="Bukan SO">Bukan SO</option>
-<option value="File SO">File SO (Stok Opname)</option>
-</select>
-<label for="t">Keterangan laporan (opsional)</label><input id="t" name="reportType" placeholder="Contoh: SO alat tulis bulan ini">
-<label for="f">Pilih file</label><input id="f" name="file" type="file" multiple required>
-<button id="sendBtn" type="submit">Kirim Berkas ke Pusat</button>
-</form>
-<p id="msg" role="status" aria-live="polite">Siap mengirim berkas.</p>
-<section class="card">
+from pathlib import Path
+import zipfile, shutil, os
+
+src = Path("/mnt/data/ADL_Status_SO_Terintegrasi/public/cabang/index.html")
+outdir = Path("/mnt/data/ADL_Cabang_Status_Semua_Cabang")
+(outdir / "public" / "cabang").mkdir(parents=True, exist_ok=True)
+html = src.read_text(encoding="utf-8")
+
+html = html.replace(
+'''<section class="card">
 <h2>Status File SO Bulan Ini</h2>
 <p class="sub">Status mengikuti kategori File SO yang berhasil dikirim oleh cabang ini.</p>
 <label for="statusBranch">Cabang untuk cek status</label><select id="statusBranch"><option value="">Pilih cabang...</option></select>
 <div id="soStatus" class="status">Pilih cabang untuk memeriksa status SO.</div>
 <button id="checkStatus" type="button">Periksa status SO</button>
-</section>
-<p class="note">Status diperbarui otomatis setiap 30 detik. Riwayat berkas lama tidak dihapus. Jangan tutup halaman saat pengiriman berlangsung.</p>
-</main>
-<script>
-const branchSelect=document.getElementById('b'),form=document.getElementById('uploadForm'),message=document.getElementById('msg'),sendBtn=document.getElementById('sendBtn');
-const category=document.getElementById('category'),statusBranch=document.getElementById('statusBranch'),soStatus=document.getElementById('soStatus');
+</section>''',
+'''<section class="card">
+<h2>Status File SO Bulan Ini</h2>
+<p class="sub">Setiap cabang wajib mengirim File SO setiap bulan. Status bulan berjalan diperiksa otomatis; bulan berikutnya akan mulai dihitung lagi tanpa menghapus riwayat berkas lama.</p>
+<div id="periodLabel" class="status">Memuat status bulan ini...</div>
+<div id="allBranchStatus" class="branch-grid" aria-live="polite"></div>
+<button id="checkStatus" type="button">Periksa ulang semua status</button>
+</section>'''
+)
+
+html = html.replace(
+'''.status.ok{background:#e6f7ed;color:#166534}.status.wait{background:#fff0e8;color:#9a3412}.status.err{background:#fff0f0;color:#b42318}''',
+'''.status.ok{background:#e6f7ed;color:#166534}.status.wait{background:#fff0e8;color:#9a3412}.status.err{background:#fff0f0;color:#b42318}
+.branch-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.branch-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px;border:1px solid #e5eaf2;border-radius:12px;font-size:14px}
+.branch-name{font-weight:700;overflow-wrap:anywhere}.pill{flex-shrink:0;border-radius:20px;padding:5px 8px;font-size:12px;font-weight:700}
+.pill.ok{background:#dcfce7;color:#166534}.pill.wait{background:#ffedd5;color:#9a3412}.pill.err{background:#fee2e2;color:#b42318}
+@media(max-width:420px){.branch-grid{grid-template-columns:1fr}}'''
+)
+
+start = html.index("const branchSelect=")
+end = html.index("form.addEventListener('submit'", start)
+new_js = '''const branchSelect=document.getElementById('b'),form=document.getElementById('uploadForm'),message=document.getElementById('msg'),sendBtn=document.getElementById('sendBtn');
+const category=document.getElementById('category'),allBranchStatus=document.getElementById('allBranchStatus'),periodLabel=document.getElementById('periodLabel');
+let branchNames=[];
 const safe=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function monthPrefix(){const d=new Date();return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'}
+function monthPrefix(){const d=new Date();return d.getUTCFullYear()+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'}
 function reportIsSO(v){return ['file_so','file so','fileso'].includes(String(v||'').trim().toLowerCase())}
-async function checkSO(){const branch=statusBranch.value||branchSelect.value;if(!branch){soStatus.className='status wait';soStatus.textContent='Pilih cabang terlebih dahulu.';return}
-soStatus.className='status';soStatus.textContent='Memeriksa status...';
-try{const r=await fetch('/api/inbox',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const x=await r.json();if(!x.ok)throw Error(x.error||'Data tidak tersedia');
-const found=(x.files||[]).some(f=>f.branch===branch&&String(f.key||'').startsWith(monthPrefix())&&reportIsSO(f.reportType));
-const d=new Date(),period=d.toLocaleDateString('id-ID',{month:'long',year:'numeric'});
-soStatus.className='status '+(found?'ok':'wait');soStatus.textContent=found?'✓ '+branch+' sudah mengirim File SO untuk '+period+'.':'Belum ada File SO dari '+branch+' untuk '+period+'.';
-}catch(e){soStatus.className='status err';soStatus.textContent='Gagal memeriksa status: '+e.message}}
-async function loadBranches(){try{const r=await fetch('/api/branches',{cache:'no-store'});if(!r.ok)throw Error('Daftar cabang tidak dapat dimuat');const data=await r.json();const names=data.branches||[];
-branchSelect.innerHTML='<option value="">Pilih cabang...</option>';statusBranch.innerHTML='<option value="">Pilih cabang...</option>';
-names.forEach(n=>{branchSelect.add(new Option(n,n));statusBranch.add(new Option(n,n))});
-}catch(e){branchSelect.innerHTML='<option value="">Daftar cabang gagal dimuat</option>';statusBranch.innerHTML='<option value="">Daftar cabang gagal dimuat</option>';message.textContent='Gagal memuat daftar cabang. Periksa koneksi lalu muat ulang halaman.'}}
-statusBranch.addEventListener('change',checkSO);document.getElementById('checkStatus').addEventListener('click',checkSO);
-form.addEventListener('submit',async event=>{event.preventDefault();const files=document.getElementById('f').files;
-if(!files.length){message.textContent='Pilih file terlebih dahulu.';return}if(!branchSelect.value){message.textContent='Pilih cabang terlebih dahulu.';return}
-sendBtn.disabled=true;let berhasil=0,gagal=0;
-try{for(let i=0;i<files.length;i++){const data=new FormData();data.append('branch',branchSelect.value);
-const detail=document.getElementById('t').value.trim();data.append('reportType',category.value);
-data.append('file',files[i]);message.textContent='Mengirim file '+(i+1)+' dari '+files.length+'...'+(detail?' Keterangan: '+detail:'');
-try{const response=await fetch('/api/upload',{method:'POST',body:data});const result=await response.json();if(!response.ok||!result.ok)gagal++;else berhasil++}catch(e){gagal++}}
-message.textContent='Selesai. Berhasil: '+berhasil+', gagal: '+gagal+'.';
-if(gagal===0){const sentBranch=branchSelect.value;form.reset();branchSelect.value=sentBranch;statusBranch.value=sentBranch;await checkSO()}
-}finally{sendBtn.disabled=false}});
-loadBranches().then(()=>{if(statusBranch.value)checkSO()});setInterval(()=>{if(statusBranch.value||branchSelect.value)checkSO()},30000);
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
-</script></body></html>
+function periodText(){return new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric',timeZone:'Asia/Jakarta'}).format(new Date())}
+async function checkSO(){
+ if(!branchNames.length){allBranchStatus.textContent='Daftar cabang belum tersedia.';return}
+ periodLabel.className='status';periodLabel.textContent='Memeriksa status untuk '+periodText()+'...';
+ try{
+  const r=await fetch('/api/inbox',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);
+  const x=await r.json();if(!x.ok)throw Error(x.error||'Data tidak tersedia');
+  const files=x.files||[],prefix=monthPrefix();
+  const sent=new Set(files.filter(f=>String(f.key||'').startsWith(prefix)&&reportIsSO(f.reportType)).map(f=>f.branch));
+  const done=branchNames.filter(n=>sent.has(n)).length;
+  periodLabel.className='status '+(done===branchNames.length?'ok':'wait');
+  periodLabel.textContent='Periode '+periodText()+': '+done+' dari '+branchNames.length+' cabang sudah mengirim File SO. Status diperbarui otomatis setiap 30 detik.';
+  allBranchStatus.innerHTML=branchNames.map(n=>{const ok=sent.has(n);return '<div class="branch-item"><span class="branch-name">'+safe(n)+'</span><span class="pill '+(ok?'ok':'wait')+'">'+(ok?'✓ Sudah':'Belum')+'</span></div>'}).join('');
+ }catch(e){periodLabel.className='status err';periodLabel.textContent='Gagal memeriksa status: '+e.message}
+}
+async function loadBranches(){try{
+ const r=await fetch('/api/branches',{cache:'no-store'});if(!r.ok)throw Error('Daftar cabang tidak dapat dimuat');
+ const data=await r.json();branchNames=data.branches||[];
+ branchSelect.innerHTML='<option value="">Pilih cabang...</option>';
+ branchNames.forEach(n=>branchSelect.add(new Option(n,n)));
+ await checkSO();
+ }catch(e){branchSelect.innerHTML='<option value="">Daftar cabang gagal dimuat</option>';periodLabel.className='status err';periodLabel.textContent='Gagal memuat daftar cabang. Periksa koneksi lalu muat ulang halaman.';message.textContent='Gagal memuat daftar cabang. Periksa koneksi lalu muat ulang halaman.'}}
+document.getElementById('checkStatus').addEventListener('click',checkSO);
+'''
+html = html[:start] + new_js + html[end:]
+html = html.replace("statusBranch.value=sentBranch;await checkSO()", "await checkSO()")
+html = html.replace("loadBranches().then(()=>{if(statusBranch.value)checkSO()});setInterval(()=>{if(statusBranch.value||branchSelect.value)checkSO()},30000);",
+                    "loadBranches();setInterval(checkSO,30000);")
+
+target = outdir / "public" / "cabang" / "index.html"
+target.write_text(html, encoding="utf-8")
+zip_path = Path("/mnt/data/ADL_Cabang_Status_Semua_Cabang.zip")
+with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+    z.write(target, "public/cabang/index.html")
+print(f"File dibuat: {target}\nZIP dibuat: {zip_path}")
