@@ -12,7 +12,7 @@
   "theme_color": "#1769d2",
 "icons": [
   {
-    "src": "/icons/pusat.svg"
+    "src": "/icons/pusat.svg",
     "sizes": "any",
     "type": "image/svg+xml",
     "purpose": "any maskable"
