@@ -1,0 +1,19 @@
+
+{
+  "id": "/cabang/",
+  "name": "ADL CABANG",
+  "short_name": "ADL CABANG",
+  "start_url": "/cabang/",
+  "scope": "/cabang/",
+  "display": "standalone",
+  "background_color": "#08265c",
+  "theme_color": "#075be8",
+  "icons": [
+    {
+      "src": "/icons/adl.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
