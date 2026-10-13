@@ -64,24 +64,14 @@ async function checkSO(){
  if(!branchNames.length){allBranchStatus.textContent='Daftar cabang belum tersedia.';return}
  periodLabel.className='status';periodLabel.textContent='Memeriksa status untuk '+periodText()+'...';
  try{
-  
-const r = await fetch('/api/so-status?year=' + new Date().getFullYear() + '&month=' + String(new Date().getMonth() + 1).padStart(2, '0'), { cache: 'no-store' });
-if (!r.ok) throw Error('HTTP ' + r.status);
-const x = await r.json();
-if (!x.ok) throw Error(x.error || 'Data tidak tersedia');
-const files = (x.branches || []).filter(b => b.sent).map(b => ({
-  branch: b.branch,
-  reportType: 'file_so',
-  key: monthPrefix()
-}));
-const prefix = monthPrefix();
-
-const normBranch=v=>String(v||'').replace(/_/g,' ').replace(/\s+/g,' ').trim().toLowerCase();
-const sent=new Set(files.filter(f=>String(f.key||'').startsWith(prefix)&&reportIsSO(f.reportType)).map(f=>normBranch(f.branch)));
-const done=branchNames.filter(n=>sent.has(normBranch(n))).length;
+  const r=await fetch('/api/inbox',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);
+  const x=await r.json();if(!x.ok)throw Error(x.error||'Data tidak tersedia');
+  const files=x.files||[],prefix=monthPrefix();
+  const sent=new Set(files.filter(f=>String(f.key||'').startsWith(prefix)&&reportIsSO(f.reportType)).map(f=>f.branch));
+  const done=branchNames.filter(n=>sent.has(n)).length;
   periodLabel.className='status '+(done===branchNames.length?'ok':'wait');
   periodLabel.textContent='Periode '+periodText()+': '+done+' dari '+branchNames.length+' cabang sudah mengirim File SO. Status diperbarui otomatis setiap 30 detik.';
-  allBranchStatus.innerHTML=branchNames.map(n=>{const ok=sent.has(normBranch(n));return '<div class="branch-item"><span class="branch-name">'+safe(n)+'</span><span class="pill '+(ok?'ok':'wait')+'">'+(ok?'✓ Sudah':'Belum')+'</span></div>'}).join('');
+  allBranchStatus.innerHTML=branchNames.map(n=>{const ok=sent.has(n);return '<div class="branch-item"><span class="branch-name">'+safe(n)+'</span><span class="pill '+(ok?'ok':'wait')+'">'+(ok?'✓ Sudah':'Belum')+'</span></div>'}).join('');
  }catch(e){periodLabel.className='status err';periodLabel.textContent='Gagal memeriksa status: '+e.message}
 }
 async function loadBranches(){try{
