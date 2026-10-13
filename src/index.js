@@ -6,6 +6,78 @@ const clean=x=>String(x||"").trim().replace(/[^\p{L}\p{N}._ -]+/gu,"_").replace(
 function c(e){return new AwsClient({accessKeyId:e.B2_KEY_ID,secretAccessKey:e.B2_APPLICATION_KEY,service:"s3",region:e.B2_REGION});}
 function u(e,k=""){return e.B2_ENDPOINT.replace(/\/+$/,"")+"/"+e.B2_BUCKET+(k?"/"+k.split("/").map(encodeURIComponent).join("/"):"");}
 async function s(e,k,method,body,headers={}){return c(e).fetch(u(e,k),{method,headers,body});}
+const ADMIN_COOKIE = "__Host-adl_admin";
+const ADMIN_SESSION_SECONDS = 8 * 60 * 60;
+
+async function adminMac(secret, message) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = await crypto.subtle.sign(
+    "HMAC", key, new TextEncoder().encode(message)
+  );
+  return Array.from(new Uint8Array(sig))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function adminPasswordMatches(input, secret) {
+  if (typeof input !== "string" ||
+      typeof secret !== "string" ||
+      !secret || input.length > 1024) return false;
+
+  const digest = async value =>
+    new Uint8Array(await crypto.subtle.digest(
+      "SHA-256", new TextEncoder().encode(value)
+    ));
+
+  const a = await digest(input);
+  const b = await digest(secret);
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
+  return diff === 0;
+}
+
+async function adminSessionValid(req, env) {
+  if (!env.ADMIN_PASSWORD) return false;
+
+  const cookies = req.headers.get("Cookie") || "";
+  const item = cookies.split(";").map(x => x.trim())
+    .find(x => x.startsWith(ADMIN_COOKIE + "="));
+
+  if (!item) return false;
+
+  const token = item.slice(ADMIN_COOKIE.length + 1);
+  const parts = token.split(".");
+  if (parts.length !== 2 ||
+      !/^\d+$/.test(parts[0]) ||
+      !/^[a-f0-9]{64}$/.test(parts[1])) return false;
+
+  const exp = Number(parts[0]);
+  const now = Math.floor(Date.now() / 1000);
+  if (!Number.isSafeInteger(exp) || exp <= now ||
+      exp > now + ADMIN_SESSION_SECONDS) return false;
+
+  const expected = await adminMac(
+    env.ADMIN_PASSWORD, "adl-admin-v1:" + parts[0]
+  );
+
+  return await adminPasswordMatches(parts[1], expected);
+}
+
+function adminOriginOK(req) {
+  return req.headers.get("Origin") === new URL(req.url).origin;
+}
+
+function adminCookie(value, maxAge) {
+  return ADMIN_COOKIE + "=" + value +
+    "; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=" + maxAge;
+}
+
 async function upload(req,e){
  const f=await req.formData(), file=f.get("file"), branch=f.get("branch"), type=f.get("reportType")||"Berkas";
  if(!(file instanceof File))return J({ok:false,error:"File belum dipilih."},400);
