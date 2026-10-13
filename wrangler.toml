@@ -9,3 +9,4 @@ binding = "ASSETS"
 
 [ai]
 binding = "AI"
+# AI binding configuration
