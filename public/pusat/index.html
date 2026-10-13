@@ -1,9 +1,182 @@
 <!doctype html>
-<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><link rel="manifest" href="/pusat/manifest.webmanifest"><meta name="theme-color" content="#1769d2"><link rel="icon" href="/icons/pusat.svg" type="image/svg+xml"><title>Pusat Berkas ADL</title>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><link rel="manifest" href="/pusat/manifest.webmanifest"><meta name="theme-color" content="#1769d2"><meta name="adl-preview-fix" content="2026-10-14-login-v4"><link rel="icon" href="/icons/pusat.svg" type="image/svg+xml"><title>Pusat Berkas ADL</title>
 <style>
 :root{font-family:Arial,Helvetica,sans-serif;color:#172033;background:#f2f5fa}*{box-sizing:border-box}body{margin:0;padding:16px}main{max-width:1000px;margin:0 auto}.card{background:#fff;border:1px solid #e5e9f0;border-radius:22px;padding:20px;margin:0 0 16px;box-shadow:0 5px 20px #1720330a}h1{font-size:26px;line-height:1.25;margin:0 0 8px}h2{font-size:20px;margin:0 0 8px}.sub{color:#687386;font-size:14px;line-height:1.5}button,select,input{font:inherit;border:1px solid #d5dbe5;border-radius:12px;padding:11px;background:#fff;min-height:42px}button{background:#1769d2;color:#fff;border:0;font-weight:700;cursor:pointer}button:disabled{opacity:.6}.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}.controls input{grid-column:1/-1;width:100%}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}.stat{background:#f4f7fc;border-radius:16px;padding:14px;min-width:0}.stat span{display:block;color:#596579;font-size:14px}.stat strong{display:block;font-size:24px;margin-top:5px;overflow-wrap:anywhere}.status{margin-top:14px;color:#687386;line-height:1.5}.error{color:#a52b2b}.empty{padding:22px;text-align:center;color:#687386}.so-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.so-stat{background:#f4f7fc;border-radius:14px;padding:12px}.so-stat span{display:block;color:#596579;font-size:13px}.so-stat strong{font-size:22px;display:block;margin-top:4px}.period{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.period select{flex:1;min-width:120px}.so-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:14px}.so-branch{border:1px solid #e0e5ed;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}.so-name{font-weight:700;font-size:14px;overflow-wrap:anywhere}.badge{font-size:12px;font-weight:700;border-radius:999px;padding:6px 8px;white-space:nowrap}.done{background:#e6f7ed;color:#167342}.pending{background:#fff0e8;color:#a64b17}.branch{border:1px solid #e0e5ed;border-radius:16px;margin:12px 0;overflow:hidden}.branch summary{background:#f6f8fc;padding:16px;font-size:18px;font-weight:700;cursor:pointer}.count{float:right;color:#596579;font-size:14px;font-weight:400}.file{padding:16px;border-top:1px solid #e7ebf2;overflow-wrap:anywhere}.file h3{font-size:16px;line-height:1.4;margin:0 0 10px;overflow-wrap:anywhere}.meta{color:#687386;font-size:14px;line-height:1.6;margin-bottom:12px}.download,.previewBtn{display:inline-block;text-decoration:none;background:#1769d2;color:white;padding:10px 13px;border-radius:10px;font-weight:700;font-size:14px;border:0}.previewBtn{background:#167342;margin:0 6px 6px 0}.smallnote{font-size:13px;color:#687386;margin-top:12px}#previewModal{display:none;position:fixed;inset:0;background:#172033aa;z-index:9999;padding:12px;overflow:auto}#previewPanel{max-width:1000px;margin:12px auto;background:#fff;border-radius:16px;padding:16px;min-height:40vh}#previewTop{display:flex;justify-content:space-between;align-items:center;gap:12px}#previewTitle{margin:0;font-size:19px;overflow-wrap:anywhere}.previewTable{border-collapse:collapse;font-size:12px;min-width:100%;white-space:pre-wrap}.previewTable td,.previewTable th{border:1px solid #d5dbe5;padding:6px;vertical-align:top}.previewTable th{background:#f4f7fc;position:sticky;top:0}.previewText{line-height:1.65;overflow-wrap:anywhere}.previewText table{max-width:100%;border-collapse:collapse}.previewText td,.previewText th{border:1px solid #ddd;padding:6px}@media(max-width:600px){body{padding:12px}.card{padding:16px;border-radius:18px}h1{font-size:23px}.stats{gap:7px}.stat{padding:11px}.stat strong{font-size:20px}.controls{grid-template-columns:1fr 1fr}.controls input{grid-column:1/-1}.controls select:last-child{grid-column:1/-1}.so-grid{grid-template-columns:1fr}.so-branch{padding:10px}.so-name{font-size:13px}}
 
 .loginBox{margin-top:18px;padding:18px;border:1px solid #dbe4f0;border-radius:18px;background:#f8fbff}.loginBox h2{margin:0 0 8px}.loginBox p{color:#64748b;margin:0 0 14px}.loginRow{display:flex;gap:10px;flex-wrap:wrap}.loginRow input{flex:1;min-width:180px;padding:14px;border:1px solid #cbd5e1;border-radius:12px;font-size:16px}.loginBox button{margin-top:10px}.loginMsg{margin-top:10px;color:#9f3030}.hidden{display:none!important}.adminBar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}.logoutBtn{background:#64748b}
+
+/* Perapihan pratinjau Word: tabel mendatar, dapat digeser, tidak memecah kata per huruf */
+#previewBody { display:block !important; width:100% !important; max-width:100% !important; overflow-x:auto !important; overflow-y:auto !important; -webkit-overflow-scrolling:touch; }
+#previewBody table { width:max-content !important; min-width:900px !important; max-width:none !important; table-layout:auto !important; border-collapse:collapse !important; }
+#previewBody tr { height:auto !important; }
+#previewBody td, #previewBody th { width:auto !important; min-width:90px !important; max-width:240px !important; padding:7px !important; font-size:12px !important; line-height:1.4 !important; white-space:normal !important; word-break:normal !important; overflow-wrap:normal !important; writing-mode:horizontal-tb !important; vertical-align:top !important; }
+#previewBody p { line-height:1.4 !important; margin:5px 0 !important; }
+
+
+/* ADL Pusat: tampilan login admin modern, terpisah dari isi aplikasi */
+:root { color-scheme: light; }
+body:has(#loginBox:not(.hidden)) {
+  min-height: 100vh;
+  padding: 24px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 12% 8%, #dbeafe 0, transparent 36%),
+              radial-gradient(circle at 92% 90%, #dbeafe 0, transparent 34%),
+              linear-gradient(145deg, #f8fbff 0%, #eef3fb 52%, #e9eff8 100%);
+}
+body:has(#loginBox:not(.hidden)) main {
+  width: 100%;
+  max-width: 460px;
+  margin: auto;
+}
+body:has(#loginBox:not(.hidden)) main > section.card:not(:has(#loginBox)) {
+  display: none !important;
+}
+body:has(#loginBox:not(.hidden)) main > section.card:has(#loginBox) {
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  padding: 30px 26px 28px;
+  border: 1px solid rgba(255,255,255,.9);
+  border-radius: 28px;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 24px 70px rgba(25, 55, 100, .14), 0 3px 12px rgba(25,55,100,.05);
+  backdrop-filter: blur(14px);
+}
+body:has(#loginBox:not(.hidden)) main > section.card:has(#loginBox)::before {
+  content: "ADL";
+  display: grid;
+  place-items: center;
+  width: 66px;
+  height: 66px;
+  margin: 0 auto 18px;
+  border-radius: 21px;
+  color: #fff;
+  background: linear-gradient(145deg, #2679ee, #124eb8);
+  box-shadow: 0 9px 22px rgba(23,105,210,.25);
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+body:has(#loginBox:not(.hidden)) main > section.card:has(#loginBox) h1 {
+  margin: 0 0 9px;
+  text-align: center;
+  font-size: 25px;
+  letter-spacing: -.5px;
+  color: #142b4d;
+}
+body:has(#loginBox:not(.hidden)) main > section.card:has(#loginBox) > .sub {
+  max-width: 320px;
+  margin: 0 auto 24px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #718096;
+}
+body:has(#loginBox:not(.hidden)) .loginBox {
+  margin: 0;
+  padding: 22px 20px 20px;
+  border: 1px solid #e1eaf6;
+  border-radius: 22px;
+  background: linear-gradient(160deg, #f8fbff, #f1f6fd);
+}
+body:has(#loginBox:not(.hidden)) .loginBox h2 {
+  margin: 0 0 8px;
+  color: #18365f;
+  font-size: 20px;
+  text-align: center;
+}
+body:has(#loginBox:not(.hidden)) .loginBox p {
+  margin: 0 0 18px;
+  color: #718096;
+  font-size: 14px;
+  line-height: 1.55;
+  text-align: center;
+}
+body:has(#loginBox:not(.hidden)) .loginRow {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+body:has(#loginBox:not(.hidden)) .loginRow input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+  padding: 14px 16px;
+  border: 1px solid #d5dfed;
+  border-radius: 14px;
+  background: #fff;
+  color: #172033;
+  font-size: 16px;
+  outline: none;
+  box-shadow: inset 0 1px 2px rgba(20,43,77,.03);
+}
+body:has(#loginBox:not(.hidden)) .loginRow input:focus {
+  border-color: #1769d2;
+  box-shadow: 0 0 0 4px rgba(23,105,210,.12);
+}
+body:has(#loginBox:not(.hidden)) .loginBox button {
+  width: 100%;
+  min-height: 52px;
+  margin: 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2679ee, #1457c4);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  box-shadow: 0 8px 18px rgba(23,105,210,.2);
+}
+body:has(#loginBox:not(.hidden)) .loginBox button:active { transform: scale(.99); }
+body:has(#loginBox:not(.hidden)) .loginMsg { text-align: center; font-size: 13px; }
+body:has(#loginBox:not(.hidden)) #adminBar,
+body:has(#loginBox:not(.hidden)) .stats,
+body:has(#loginBox:not(.hidden)) #reload,
+body:has(#loginBox:not(.hidden)) #status { display: none !important; }
+@media (max-width: 420px) {
+  body:has(#loginBox:not(.hidden)) { padding: 16px 12px; }
+  body:has(#loginBox:not(.hidden)) main > section.card:has(#loginBox) { padding: 26px 18px 20px; border-radius: 24px; }
+  body:has(#loginBox:not(.hidden)) .loginBox { padding: 19px 15px; }
+}
+
+
+/* LOGIN AWAL ADL - desain khusus sebelum admin masuk */
+body:has(#loginBox:not(.hidden)) {
+  min-height:100vh !important;
+  padding:24px 16px !important;
+  background: radial-gradient(circle at 15% 5%, #dceaff 0, transparent 38%), linear-gradient(145deg,#edf4ff 0%,#f7f9fd 52%,#e8effa 100%) !important;
+  display:flex !important; align-items:center !important; justify-content:center !important;
+}
+body:has(#loginBox:not(.hidden)) main { width:100% !important; max-width:480px !important; margin:auto !important; }
+body:has(#loginBox:not(.hidden)) main > section.card:not(:first-child) { display:none !important; }
+body:has(#loginBox:not(.hidden)) main > section.card:first-child {
+  padding:30px 25px 26px !important; margin:0 !important; border:1px solid #e2eaf6 !important;
+  border-radius:28px !important; background:rgba(255,255,255,.96) !important;
+  box-shadow:0 24px 70px rgba(30,64,120,.14) !important;
+}
+body:has(#loginBox:not(.hidden)) main > section.card:first-child > h1 {
+  text-align:center !important; font-size:27px !important; letter-spacing:-.5px !important;
+  margin:0 0 8px !important; color:#132b52 !important;
+}
+body:has(#loginBox:not(.hidden)) main > section.card:first-child > .sub {
+  text-align:center !important; max-width:300px !important; margin:0 auto 25px !important;
+  font-size:14px !important; color:#718096 !important;
+}
+body:has(#loginBox:not(.hidden)) .loginBox {
+  margin:0 !important; padding:24px 20px 20px !important; border:1px solid #e2eaf5 !important;
+  border-radius:22px !important; background:linear-gradient(160deg,#f8fbff,#f0f6ff) !important;
+}
+body:has(#loginBox:not(.hidden)) .loginBox h2 { text-align:center !important; font-size:21px !important; margin:0 0 8px !important; color:#18345e !important; }
+body:has(#loginBox:not(.hidden)) .loginBox p { text-align:center !important; font-size:14px !important; line-height:1.55 !important; margin:0 auto 20px !important; max-width:280px !important; }
+body:has(#loginBox:not(.hidden)) .loginRow { display:flex !important; flex-direction:column !important; gap:12px !important; }
+body:has(#loginBox:not(.hidden)) .loginRow input { width:100% !important; min-width:0 !important; min-height:54px !important; border-radius:14px !important; padding:15px 16px !important; background:#fff !important; border:1px solid #cbd8eb !important; font-size:16px !important; }
+body:has(#loginBox:not(.hidden)) .loginRow button { width:100% !important; min-height:52px !important; margin:0 !important; border-radius:14px !important; background:linear-gradient(135deg,#1769d2,#0d55b6) !important; box-shadow:0 8px 18px rgba(23,105,210,.22) !important; font-size:16px !important; }
+body:has(#loginBox:not(.hidden)) #adminBar, body:has(#loginBox:not(.hidden)) .stats,
+body:has(#loginBox:not(.hidden)) #reload, body:has(#loginBox:not(.hidden)) #status { display:none !important; }
+body:has(#loginBox:not(.hidden)) .loginMsg { text-align:center !important; font-size:13px !important; }
+@media(max-width:420px){body:has(#loginBox:not(.hidden)){padding:16px 12px!important}body:has(#loginBox:not(.hidden)) main>section.card:first-child{padding:26px 18px 20px!important}body:has(#loginBox:not(.hidden)) .loginBox{padding:21px 15px 17px!important}}
+
 </style></head><body><main>
 <section class="card"><h1>📥 Pusat Berkas ADL</h1><div class="sub">Daftar berkas dari seluruh cabang. Data diperbarui otomatis setiap 30 detik.</div>
 <div id="loginBox" class="loginBox"><h2>🔐 Login Admin</h2><p>Masuk untuk melihat daftar dan mengunduh berkas cabang.</p><form id="loginForm"><div class="loginRow"><input id="adminPassword" type="password" autocomplete="current-password" placeholder="Masukkan kata sandi admin" required><button id="loginBtn" type="submit">Masuk</button></div></form><div id="loginMsg" class="loginMsg" aria-live="polite"></div></div><div id="adminBar" class="adminBar hidden"><span>Admin sudah masuk.</span><button id="logoutBtn" class="logoutBtn" type="button">Keluar</button></div>
@@ -21,8 +194,8 @@ function isSO(f){return['file_so','file so','fileso'].includes(String(f.reportTy
 function selectedPrefix(){return $('soYear').value+'/'+$('soMonth').value+'/'}
 async function load(){const status=$('status'),btn=$('reload');btn.disabled=true;status.className='status';status.textContent='Memuat data…';try{const[rB,rF]=await Promise.all([fetch('/api/branches',{cache:'no-store'}),fetch('/api/inbox',{cache:'no-store'})]);if(!rB.ok||!rF.ok)throw Error('Server gagal membaca data');const bData=await rB.json(),x=await rF.json();if(!x.ok)throw Error(x.error||'Gagal mengambil daftar berkas');$('loginBox').classList.add('hidden');$('adminBar').classList.remove('hidden');allFiles=Array.isArray(x.files)?x.files:[];allBranches=Array.isArray(bData.branches)?bData.branches:[...new Set(allFiles.map(f=>f.branch).filter(Boolean))];$('total').textContent=allFiles.length;$('branchesCount').textContent=new Set(allFiles.map(f=>f.branch||'Cabang tidak diketahui')).size;$('size').textContent=fmtSize(allFiles.reduce((s,f)=>s+(Number(f.size)||0),0));const oldB=$('branchFilter').value,oldY=$('yearFilter').value;const branches=[...new Set([...allBranches,...allFiles.map(f=>f.branch).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'id'));$('branchFilter').innerHTML='<option value="">Semua cabang</option>'+branches.map(b=>'<option value="'+esc(b)+'">'+esc(b)+'</option>').join('');if(branches.includes(oldB))$('branchFilter').value=oldB;const years=[...new Set(allFiles.map(f=>{const d=new Date(f.modified||0);return isNaN(d)?'':String(d.getFullYear())}).filter(Boolean))].sort().reverse();$('yearFilter').innerHTML='<option value="">Semua tahun</option>'+years.map(y=>'<option value="'+y+'">'+y+'</option>').join('');if(years.includes(oldY))$('yearFilter').value=oldY;status.textContent='Terakhir diperbarui: '+new Date().toLocaleTimeString('id-ID');render();renderSO()}catch(e){if(String(e.message).includes('Server gagal membaca data')||String(e.message).includes('Admin belum')){$('loginBox').classList.remove('hidden');$('adminBar').classList.add('hidden');status.className='status error';status.textContent='Silakan login admin untuk memuat daftar berkas.'}else{status.className='status error';status.textContent='Gagal memuat: '+e.message+' — periksa koneksi dan konfigurasi server.'}$('soStatus').textContent='Status SO belum dapat dimuat.'}finally{btn.disabled=false}}
 function renderSO(){const prefix=selectedPrefix(),sent=new Set(allFiles.filter(f=>String(f.key||'').startsWith(prefix)&&isSO(f)).map(f=>f.branch));const done=allBranches.filter(b=>sent.has(b)).length;$('doneCount').textContent=done;$('pendingCount').textContent=Math.max(0,allBranches.length-done);$('soList').innerHTML=allBranches.map(b=>'<div class="so-branch"><span class="so-name">'+esc(b)+'</span><span class="badge '+(sent.has(b)?'done':'pending')+'">'+(sent.has(b)?'✓ Sudah':'Belum')+'</span></div>').join('');$('soStatus').textContent='Periode: '+months[Number($('soMonth').value)-1]+' '+$('soYear').value+'. Terakhir diperiksa '+new Date().toLocaleTimeString('id-ID')+'.'}
-function render(){const q=$('q').value.trim().toLowerCase(),b=$('branchFilter').value,y=$('yearFilter').value,m=$('monthFilter').value;const files=allFiles.filter(f=>{const d=new Date(f.modified||0);return(!q||(String(f.name||'')+' '+String(f.reportType||'')+' '+String(f.branch||'')).toLowerCase().includes(q))&&(!b||f.branch===b)&&(!y||(!isNaN(d)&&String(d.getFullYear())===y))&&(!m||(!isNaN(d)&&String(d.getMonth()+1).padStart(2,'0')===m))});if(!files.length){$('list').innerHTML='<div class="empty">'+(allFiles.length?'Tidak ada berkas yang cocok dengan pencarian/filter.':'Belum ada berkas.')+'</div>';return}const groups={};for(const f of files)(groups[f.branch||'Cabang tidak diketahui']??=[]).push(f);$('list').innerHTML=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'id')).map(branch=>'<details class="branch" open><summary>'+esc(branch)+' <span class="count">'+groups[branch].length+' berkas</span></summary>'+groups[branch].map(f=>{const ext=String(f.name||'').split('.').pop().toLowerCase(),canPreview=['xlsx','xls','docx'].includes(ext);return'<div class="file"><h3>'+esc(f.name||'Berkas tanpa nama')+'</h3><div class="meta">Jenis laporan: '+esc(String(f.reportType||'Berkas').replace(/_/g,' '))+'<br>Diterima: '+esc(fmtDate(f.modified))+'<br>Ukuran: '+esc(fmtSize(f.size))+'</div>'+(canPreview?'<button type="button" class="previewBtn" onclick="previewFile('+JSON.stringify(f.key||'')+','+JSON.stringify(f.name||'Berkas')+')">👁 Lihat isi</button> ':'')+'<a class="download" href="/api/download?key='+encodeURIComponent(f.key||'')+'">⬇ Unduh berkas</a></div>'}).join('')+'</details>').join('')}
+function render(){const q=$('q').value.trim().toLowerCase(),b=$('branchFilter').value,y=$('yearFilter').value,m=$('monthFilter').value;const files=allFiles.filter(f=>{const d=new Date(f.modified||0);return(!q||(String(f.name||'')+' '+String(f.reportType||'')+' '+String(f.branch||'')).toLowerCase().includes(q))&&(!b||f.branch===b)&&(!y||(!isNaN(d)&&String(d.getFullYear())===y))&&(!m||(!isNaN(d)&&String(d.getMonth()+1).padStart(2,'0')===m))});if(!files.length){$('list').innerHTML='<div class="empty">'+(allFiles.length?'Tidak ada berkas yang cocok dengan pencarian/filter.':'Belum ada berkas.')+'</div>';return}const groups={};for(const f of files)(groups[f.branch||'Cabang tidak diketahui']??=[]).push(f);$('list').innerHTML=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'id')).map(branch=>'<details class="branch" open><summary>'+esc(branch)+' <span class="count">'+groups[branch].length+' berkas</span></summary>'+groups[branch].map(f=>{const ext=String(f.name||'').split('.').pop().toLowerCase(),canPreview=['xlsx','xls','docx'].includes(ext);return'<div class="file"><h3>'+esc(f.name||'Berkas tanpa nama')+'</h3><div class="meta">Jenis laporan: '+esc(String(f.reportType||'Berkas').replace(/_/g,' '))+'<br>Diterima: '+esc(fmtDate(f.modified))+'<br>Ukuran: '+esc(fmtSize(f.size))+'</div>'+(canPreview?'<button type="button" class="previewBtn" data-preview-key="'+esc(f.key||'')+'" data-preview-name="'+esc(f.name||'Berkas')+'">👁 Lihat isi</button> ':'')+'<a class="download" href="/api/download?key='+encodeURIComponent(f.key||'')+'">⬇ Unduh berkas</a></div>'}).join('')+'</details>').join('');pasangTombolPratinjau()}
 async function loadScript(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(Error('Pustaka pratinjau gagal dimuat. Periksa koneksi internet.'));document.head.appendChild(s)})}
 async function previewFile(key,name){const modal=$('previewModal'),title=$('previewTitle'),msg=$('previewMessage'),body=$('previewBody');modal.style.display='block';title.textContent='Pratinjau: '+name;msg.textContent='Memuat isi berkas...';body.innerHTML='';try{const r=await fetch('/api/download?key='+encodeURIComponent(key),{cache:'no-store'});if(!r.ok)throw Error('Berkas gagal dibaca dari penyimpanan.');const ext=String(name).split('.').pop().toLowerCase(),buf=await r.arrayBuffer();if(['xlsx','xls'].includes(ext)){if(!window.XLSX){msg.textContent='Memuat pembaca Excel...';await loadScript('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js')}const wb=XLSX.read(buf,{type:'array'}),sheetName=wb.SheetNames[wb.SheetNames.length-1],ws=wb.Sheets[sheetName];if(!ws)throw Error('Lembar kerja tidak ditemukan.');msg.textContent='Lembar terakhir: '+sheetName+' · '+wb.SheetNames.length+' lembar tersedia.';const table=document.createElement('div');table.innerHTML=XLSX.utils.sheet_to_html(ws);const t=table.querySelector('table');if(t){t.className='previewTable';body.appendChild(t)}else body.textContent='Lembar kosong.'}else if(ext==='docx'){if(!window.mammoth){msg.textContent='Memuat pembaca Word...';await loadScript('https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js')}const result=await mammoth.convertToHtml({arrayBuffer:buf});msg.textContent='Pratinjau isi dokumen Word.';const article=document.createElement('article');article.className='previewText';article.innerHTML=result.value;body.appendChild(article)}else throw Error('Pratinjau mendukung Excel (.xlsx/.xls) dan Word (.docx).')}catch(e){msg.textContent='Tidak dapat menampilkan pratinjau: '+e.message;body.innerHTML=''}}
-$('closePreview').addEventListener('click',()=>{$('previewModal').style.display='none';$('previewBody').innerHTML=''});$('previewModal').addEventListener('click',e=>{if(e.target===$('previewModal'))$('previewModal').style.display='none'});$('q').addEventListener('input',render);$('branchFilter').addEventListener('change',render);$('yearFilter').addEventListener('change',render);$('monthFilter').addEventListener('change',render);$('soReload').addEventListener('click',renderSO);$('soMonth').addEventListener('change',renderSO);$('soYear').addEventListener('change',renderSO);$('soMonth').innerHTML=months.map((m,i)=>'<option value="'+String(i+1).padStart(2,'0')+'">'+m+'</option>').join('');$('soYear').innerHTML=Array.from({length:7},(_,i)=>new Date().getFullYear()+2-i).map(y=>'<option value="'+y+'">'+y+'</option>').join('');$('soMonth').value=String(new Date().getMonth()+1).padStart(2,'0');$('soYear').value=String(new Date().getFullYear());$('closePreview').addEventListener('click',()=>{$('previewModal').style.display='none';$('previewBody').innerHTML=''});$('previewModal').addEventListener('click',e=>{if(e.target===$('previewModal'))$('previewModal').style.display='none'});$('loginForm').addEventListener('submit',async ev=>{ev.preventDefault();const btn=$('loginBtn'),msg=$('loginMsg');btn.disabled=true;msg.textContent='Memeriksa kata sandi…';try{const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',cache:'no-store',body:JSON.stringify({password:$('adminPassword').value})});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Login gagal.');$('adminPassword').value='';msg.textContent='Login berhasil. Memuat berkas…';await load();if(!$('adminBar').classList.contains('hidden'))msg.textContent='';}catch(e){msg.textContent=e.message||'Login gagal.'}finally{btn.disabled=false}});$('logoutBtn').addEventListener('click',async()=>{try{await fetch('/api/admin/logout',{method:'POST',credentials:'same-origin',cache:'no-store'})}catch(e){}$('loginBox').classList.remove('hidden');$('adminBar').classList.add('hidden');$('total').textContent='—';$('branchesCount').textContent='—';$('size').textContent='—';$('list').innerHTML='<div class="empty">Silakan login untuk melihat berkas.</div>';$('status').textContent='Anda sudah keluar.';allFiles=[]});load();setInterval(()=>{if(!$('adminBar').classList.contains('hidden'))load()},30000);if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
+function pasangTombolPratinjau(){document.querySelectorAll('#list button[data-preview-key]').forEach(btn=>{if(btn.dataset.previewReady==='1')return;btn.dataset.previewReady='1';btn.addEventListener('click',async function(ev){ev.preventDefault();ev.stopPropagation();const key=this.getAttribute('data-preview-key')||'',name=this.getAttribute('data-preview-name')||'Berkas';const modal=$('previewModal');modal.style.display='block';$('previewTitle').textContent='Pratinjau: '+name;$('previewMessage').textContent='Memuat isi berkas...';$('previewBody').textContent='';try{await previewFile(key,name)}catch(err){$('previewMessage').textContent='Pratinjau gagal: '+(err.message||String(err))}})})}$('closePreview').addEventListener('click',()=>{$('previewModal').style.display='none';$('previewBody').innerHTML=''});$('previewModal').addEventListener('click',e=>{if(e.target===$('previewModal'))$('previewModal').style.display='none'});$('q').addEventListener('input',render);$('branchFilter').addEventListener('change',render);$('yearFilter').addEventListener('change',render);$('monthFilter').addEventListener('change',render);$('soReload').addEventListener('click',renderSO);$('soMonth').addEventListener('change',renderSO);$('soYear').addEventListener('change',renderSO);$('soMonth').innerHTML=months.map((m,i)=>'<option value="'+String(i+1).padStart(2,'0')+'">'+m+'</option>').join('');$('soYear').innerHTML=Array.from({length:7},(_,i)=>new Date().getFullYear()+2-i).map(y=>'<option value="'+y+'">'+y+'</option>').join('');$('soMonth').value=String(new Date().getMonth()+1).padStart(2,'0');$('soYear').value=String(new Date().getFullYear());$('closePreview').addEventListener('click',()=>{$('previewModal').style.display='none';$('previewBody').innerHTML=''});$('previewModal').addEventListener('click',e=>{if(e.target===$('previewModal'))$('previewModal').style.display='none'});$('loginForm').addEventListener('submit',async ev=>{ev.preventDefault();const btn=$('loginBtn'),msg=$('loginMsg');btn.disabled=true;msg.textContent='Memeriksa kata sandi…';try{const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',cache:'no-store',body:JSON.stringify({password:$('adminPassword').value})});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Login gagal.');$('adminPassword').value='';msg.textContent='Login berhasil. Memuat berkas…';await load();if(!$('adminBar').classList.contains('hidden'))msg.textContent='';}catch(e){msg.textContent=e.message||'Login gagal.'}finally{btn.disabled=false}});$('logoutBtn').addEventListener('click',async()=>{try{await fetch('/api/admin/logout',{method:'POST',credentials:'same-origin',cache:'no-store'})}catch(e){}$('loginBox').classList.remove('hidden');$('adminBar').classList.add('hidden');$('total').textContent='—';$('branchesCount').textContent='—';$('size').textContent='—';$('list').innerHTML='<div class="empty">Silakan login untuk melihat berkas.</div>';$('status').textContent='Anda sudah keluar.';allFiles=[]});load();setInterval(()=>{if(!$('adminBar').classList.contains('hidden'))load()},30000);if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
 </script></body></html>
