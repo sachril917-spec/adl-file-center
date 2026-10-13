@@ -18,6 +18,16 @@ button{display:block;width:100%;margin-top:18px;padding:16px;border:0;border-rad
 .card{border:1px solid #e0e8f3;border-radius:23px;padding:20px;margin:24px 24px 0;background:linear-gradient(145deg,#fff,#fbfdff);box-shadow:0 8px 22px #163f7808}.card h2{font-size:21px;line-height:1.25;margin:0 0 8px;color:var(--navy);letter-spacing:-.3px}.sub{margin:6px 0 0;color:var(--muted);font-size:14px;line-height:1.6}.status{padding:13px 14px;border-radius:14px;background:#edf4ff;color:#24538e;min-height:20px;overflow-wrap:anywhere;line-height:1.5;font-size:14px;margin-top:15px}.status.ok{background:#e7f8ee;color:#177447}.status.wait{background:#fff1e5;color:#98410e}.status.err{background:#fff0f0;color:#b42318}
 .branch-grid{display:grid;grid-template-columns:1fr;gap:9px;margin-top:13px}.branch-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 15px;border:1px solid #e2eaf5;border-radius:15px;background:#fff;font-size:14px;box-shadow:0 2px 7px #183b6605}.branch-name{font-weight:750;overflow-wrap:anywhere;color:#1a3155}.pill{flex-shrink:0;border-radius:30px;padding:7px 10px;font-size:12px;font-weight:800;white-space:nowrap}.pill.ok{background:#dcf8e7;color:#167443}.pill.wait{background:#fff0df;color:#a44812}.pill.err{background:#fee2e2;color:#b42318}#checkStatus{margin-top:16px;background:#12376c;box-shadow:0 7px 17px #12376c1c}.note{font-size:12px;color:#7889a2;line-height:1.65;margin:17px 26px 0}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:17px}.stat{padding:13px 12px;border-radius:16px;background:#edf4ff;border:1px solid #e0ebfa;min-width:0}.stat:nth-child(2){background:#e8f8ee;border-color:#d9f0e1}.stat:nth-child(3){background:#fff1e6;border-color:#ffead8}.stat span{display:block;font-size:12px;color:#617491;line-height:1.3}.stat strong{display:block;font-size:25px;margin-top:5px;color:var(--navy)}
 @media(max-width:420px){body{padding:10px 8px 24px}main{margin:8px auto;border-radius:23px}.brand{padding:22px 17px;gap:12px}.brand img{width:64px;height:64px;border-radius:16px}.brand h1{font-size:23px}#uploadForm{padding:0 17px}.card{margin:21px 17px 0;padding:17px}.card h2{font-size:19px}#msg{margin-left:17px;margin-right:17px}.note{margin-left:19px;margin-right:19px}.stats{gap:6px}.stat{padding:11px 8px}.stat span{font-size:11px}.stat strong{font-size:22px}}
+
+.daily-card{position:relative;overflow:hidden;margin:22px 24px 0;padding:0;border:1px solid #d9e7ff;border-radius:23px;background:linear-gradient(135deg,#092858 0%,#1356a7 58%,#2d91f4 100%);color:#fff;box-shadow:0 12px 28px #124a9220}
+.daily-card:after{content:"✦";position:absolute;right:18px;top:-26px;font-size:132px;line-height:1;color:#ffffff12;pointer-events:none}
+.daily-top{display:flex;align-items:center;gap:9px;padding:17px 18px 0;font-size:13px;font-weight:800;letter-spacing:.4px;color:#ffdf86;text-transform:uppercase}
+.daily-content{position:relative;z-index:1;padding:12px 19px 18px}.daily-content h2{margin:0 0 9px;font-size:21px;line-height:1.25;color:#fff;letter-spacing:-.3px}.daily-content p{margin:0;color:#e4efff;font-size:15px;line-height:1.65}.daily-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 18px 17px;position:relative;z-index:1}.daily-date{font-size:12px;color:#c5ddff}.daily-refresh{width:auto;margin:0;padding:10px 13px;border:1px solid #ffffff45;border-radius:12px;background:#ffffff18;color:#fff;font-size:12px;box-shadow:none;white-space:nowrap}.daily-refresh:active{background:#ffffff30}
+@media(max-width:420px){.daily-card{margin:19px 17px 0}.daily-content{padding:11px 16px 16px}.daily-content h2{font-size:19px}.daily-content p{font-size:14px}.daily-top{padding-left:16px}.daily-footer{padding:0 16px 15px}}
+
+
+
+
 </style>
 </head>
 <body>
@@ -34,6 +44,12 @@ button{display:block;width:100%;margin-top:18px;padding:16px;border:0;border-rad
 <button id="sendBtn" type="submit">➤ &nbsp; Kirim Berkas ke Pusat　›</button>
 </form>
 <p id="msg" role="status" aria-live="polite">Siap mengirim berkas.</p>
+<section class="daily-card" aria-live="polite" aria-label="Semangat hari ini">
+ <div class="daily-top"><span>☀️</span><span>Motivasi Nafkah • Humor • Berkah</span></div>
+ <div class="daily-content"><h2 id="dailyTitle">Semangat Hari Ini</h2><p id="dailyMessage">Langkah kecil yang konsisten akan membawa hasil besar.</p></div>
+ <div class="daily-footer"><span class="daily-date" id="dailyDate">Motivasi harian</span><button class="daily-refresh" id="dailyRefresh" type="button">😂 Motivasi lain</button></div>
+</section>
+
 <section class="card">
 <h2>Status File SO Bulan Ini</h2>
 <p class="sub">Setiap cabang wajib mengirim File SO setiap bulan. Status bulan berjalan diperiksa otomatis; bulan berikutnya akan mulai dihitung lagi tanpa menghapus riwayat berkas lama.</p>
@@ -45,6 +61,52 @@ button{display:block;width:100%;margin-top:18px;padding:16px;border:0;border-rad
 <p class="note">Status diperbarui otomatis setiap 30 detik. Riwayat berkas lama tidak dihapus. Jangan tutup halaman saat pengiriman berlangsung.</p>
 </main>
 <script>
+
+const dailyItems=[
+ ['🤲 Niatkan karena Allah','Bekerjalah dengan jujur. Semoga lelah mencari nafkah menjadi jalan rezeki yang halal dan berkah. Bonusnya: semoga pelanggan bilang “terima kasih”, bukan “bisa kurang, Mas?”'],
+ ['😂 Pejuang nafkah','Rezeki memang sudah diatur Allah, tapi alarm tetap harus disetel. Tawakal itu penting; bangun kesiangan jangan dijadikan strategi bisnis.'],
+ ['💪 Kerja yang amanah','Tidak harus langsung sukses besar. Yang penting hari ini lebih jujur, lebih rajin, dan tidak mengurangi timbangan. Diskon boleh, kejujuran jangan ikut didiskon.'],
+ ['😄 Sabar menghadapi pelanggan','Sabar itu berpahala. Apalagi saat pelanggan bertanya harga, lalu berkata “di toko sebelah lebih murah”. Senyum dulu, hitung untungnya belakangan.'],
+ ['☕ Rezeki halal, hati tenang','Cari nafkah dengan cara baik, jangan lupa istirahat dan berdoa. Kopi boleh pahit, ucapan ke pelanggan jangan ikut pahit.'],
+ ['📦 Amanah dalam pekerjaan','Barang harus dihitung teliti, uang harus dicatat rapi, janji harus ditepati. Jangan sampai stok opname lebih menegangkan daripada ujian sekolah.'],
+ ['🌙 Jangan menyerah','Kalau hari ini berat, tarik napas dan berdoa. Masalah boleh menumpuk, tapi jangan ikut menumpuk alasan untuk tidak berusaha.'],
+ ['🤣 Senyum itu sedekah','Bekerja serius bukan berarti wajah harus serius 24 jam. Nanti dikira sedang menghitung utang negara, padahal menghitung pulpen.'],
+ ['🕌 Berkah lebih penting','Bukan cuma banyaknya hasil, tetapi juga cara mendapatkannya. Rezeki halal semoga menenangkan hati—dan semoga sandal saat pulang tidak hilang sebelah.'],
+ ['🧾 Teliti dan jujur','Periksa angka dua kali, catat dengan benar, dan tetap amanah. Salah hitung bisa bikin pusing; salah niat bisa bikin lupa tujuan.'],
+ ['🙏 Syukuri proses','Syukuri pekerjaan yang ada sambil terus memperbaiki diri. Mengeluh boleh sebentar, asal jangan sampai lebih rajin mengeluh daripada bekerja.'],
+ ['😂 Bos boleh pusing','Kalau pekerjaan bikin kepala panas, istirahat sejenak. Jangan ajak kalkulator ikut berdebat—dia cuma bisa menghitung, bukan memahami perasaan.']
+];
+let dailyOffset=0;
+function renderDaily(){
+ const now=new Date(),dayNumber=Math.floor(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())/86400000);
+ const idx=((dayNumber%dailyItems.length)+dailyItems.length+dailyOffset)%dailyItems.length;
+ const item=dailyItems[idx];
+ document.getElementById('dailyTitle').textContent=item[0];
+ document.getElementById('dailyMessage').textContent=item[1];
+ document.getElementById('dailyDate').textContent='Motivasi • '+new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'long',timeZone:'Asia/Jakarta'}).format(now);
+}
+document.getElementById('dailyRefresh').addEventListener('click',()=>{dailyOffset++;renderDaily()});
+renderDaily();
+// Ambil ayat terjemahan Indonesia dari sumber online; motivasi utama berganti otomatis setiap hari.
+async function loadOnlineAyat(){
+ const target=document.getElementById('dailyMessage');
+ try{
+  const today=new Date();
+  const seed=Math.floor(Date.UTC(today.getFullYear(),today.getMonth(),today.getDate())/86400000);
+  const ayahNumber=(seed*37%6236)+1;
+  const response=await fetch('https://api.alquran.cloud/v1/ayah/'+ayahNumber+'/id.indonesian',{cache:'no-store'});
+  if(!response.ok)throw new Error('Sumber online tidak tersedia');
+  const result=await response.json();
+  if(result.code!==200||!result.data||!result.data.text)throw new Error('Ayat belum tersedia');
+  const ayah=result.data;
+  document.getElementById('dailyDate').textContent='Motivasi harian • Ayat Al-Qur’an online: '+ayah.surah.englishName+' '+ayah.surah.number+':'+ayah.numberInSurah;
+  target.textContent=dailyItems[((seed%dailyItems.length)+dailyItems.length)%dailyItems.length][1]+'  |  Pengingat Al-Qur’an: “'+ayah.text+'”';
+ }catch(e){
+  document.getElementById('dailyDate').textContent='Motivasi harian • ayat online sementara tidak tersedia';
+ }
+}
+loadOnlineAyat();
+
 const branchSelect=document.getElementById('b'),form=document.getElementById('uploadForm'),message=document.getElementById('msg'),sendBtn=document.getElementById('sendBtn');
 const category=document.getElementById('category'),allBranchStatus=document.getElementById('allBranchStatus'),periodLabel=document.getElementById('periodLabel');
 let branchNames=[];
@@ -56,17 +118,10 @@ async function checkSO(){
  if(!branchNames.length){allBranchStatus.textContent='Daftar cabang belum tersedia.';return}
  periodLabel.className='status';periodLabel.textContent='Memeriksa status untuk '+periodText()+'...';
  try{
-  
-   const d=new Date();
-   const year=d.getUTCFullYear();
-   const month=String(d.getUTCMonth()+1).padStart(2,'0');
-   const r=await fetch('/api/so-status?year='+year+'&month='+month,{cache:'no-store'});
-   if(!r.ok)throw Error('HTTP '+r.status);
-   const x=await r.json();
-   if(!x.ok)throw Error(x.error||'Data tidak tersedia');
-   const statuses=x.branches||[];
-   const sent=new Set(statuses.filter(f=>f.sent).map(f=>f.branch));
-
+  const r=await fetch('/api/inbox',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);
+  const x=await r.json();if(!x.ok)throw Error(x.error||'Data tidak tersedia');
+  const files=x.files||[],prefix=monthPrefix();
+  const sent=new Set(files.filter(f=>String(f.key||'').startsWith(prefix)&&reportIsSO(f.reportType)).map(f=>f.branch));
   const done=branchNames.filter(n=>sent.has(n)).length;
   document.getElementById('totalBranches').textContent=branchNames.length;document.getElementById('sentBranches').textContent=done;document.getElementById('waitingBranches').textContent=branchNames.length-done;
   periodLabel.className='status '+(done===branchNames.length?'ok':'wait');
