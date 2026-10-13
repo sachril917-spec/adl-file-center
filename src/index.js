@@ -21,6 +21,66 @@ function validFileKey(k){return typeof k==="string"&&/^\d{4}\/\d{2}\/[\p{L}\p{N}
 export default {async fetch(req,e){if(req.method==="OPTIONS")return new Response(null,{status:204,headers:H});const url=new URL(req.url),p=url.pathname;if(p==="/api/health")return J({ok:true,storage:"Backblaze B2"});
 try{
  if(p==="/api/branches"&&req.method==="GET")return J({branches:await getBranches(e)});
+
+ if(p==="/api/daily-motivation"&&req.method==="GET"){
+  const now=new Date();
+  const parts=new Intl.DateTimeFormat("en-CA",{
+   timeZone:"Asia/Jakarta",year:"numeric",month:"2-digit",day:"2-digit"
+  }).formatToParts(now);
+  const part=n=>parts.find(x=>x.type===n).value;
+  const day=part("year")+"-"+part("month")+"-"+part("day");
+  const key="__config/motivation/"+day+".json";
+
+  try{
+   const old=await s(e,key,"GET");
+   if(old.ok){
+    const saved=await old.json();
+    if(saved.title&&saved.message)return J({...saved,cached:true});
+   }
+  }catch{}
+
+  if(!e.AI)return J({
+   ok:false,error:"AI belum terhubung. Periksa binding AI di Cloudflare."
+  },503);
+
+  try{
+   const result=await e.AI.run("@cf/meta/llama-3.1-8b-instruct",{
+    messages:[
+     {
+      role:"system",
+      content:"Kamu penulis motivasi harian berbahasa Indonesia. Buat tulisan singkat yang benar-benar segar, lucu, cerdas, hangat, agamis secara moderat, tentang kerja jujur, mencari nafkah halal, amanah, pelanggan, usaha, keluarga, syukur dan doa. Gunakan humor sehari-hari yang sopan dan tidak menghina. Hindari mengarang ayat atau hadis. Jangan mengklaim tulisan sebagai ayat atau hadis. Jawab hanya JSON valid dengan bentuk {\"title\":\"judul singkat lucu\",\"message\":\"motivasi 2 sampai 4 kalimat\"}. Hindari klise dan variasikan sudut pandang serta lelucon."
+     },
+     {
+      role:"user",
+      content:"Buat satu motivasi baru untuk tanggal "+day+". Tema kerja mencari nafkah halal, nilai Islami dan humor segar. Jangan menyebut tanggal di dalam tulisan. Hasil harus JSON sesuai format."
+     }
+    ],
+    max_tokens:220,
+    temperature:0.95
+   });
+
+   let textOut=String(result.response||"").trim();
+   textOut=textOut.replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,"");
+   const start=textOut.indexOf("{"),end=textOut.lastIndexOf("}");
+   if(start<0||end<start)throw Error("Jawaban AI bukan JSON");
+   const item=JSON.parse(textOut.slice(start,end+1));
+   if(typeof item.title!=="string"||typeof item.message!=="string")throw Error("Format jawaban AI tidak valid");
+
+   const output={
+    ok:true,date:day,title:item.title.slice(0,100),
+    message:item.message.slice(0,1200),source:"Cloudflare AI"
+   };
+   await s(e,key,"PUT",JSON.stringify(output),{
+    "Content-Type":"application/json"
+   });
+   return J({...output,cached:false});
+  }catch(err){
+   return J({
+    ok:false,error:"Motivasi AI belum berhasil dibuat. Coba lagi nanti."
+   },502);
+  }
+ }
+
  if(p==="/api/admin/login"&&req.method==="POST"){if(!adminOriginOK(req))return J({ok:false,error:"Origin tidak valid."},403);if(!e.ADMIN_PASSWORD)return J({ok:false,error:"ADMIN_PASSWORD belum tersedia."},500);let data;try{data=await req.json()}catch{return J({ok:false,error:"Data login tidak valid."},400)}if(!await adminPasswordMatches(data.password,e.ADMIN_PASSWORD))return J({ok:false,error:"Kata sandi salah."},401);const exp=String(Math.floor(Date.now()/1000)+ADMIN_SESSION_SECONDS),sig=await adminMac(e.ADMIN_PASSWORD,"adl-admin-v1:"+exp);return new Response(JSON.stringify({ok:true,message:"Login admin berhasil."}),{headers:{...H,"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","Set-Cookie":adminCookie(exp+"."+sig,ADMIN_SESSION_SECONDS)}})}
  if(p==="/api/admin/check"&&req.method==="GET")return J({ok:await adminSessionValid(req,e)});
  if(p==="/api/admin/logout"&&req.method==="POST"){if(!adminOriginOK(req))return J({ok:false,error:"Origin tidak valid."},403);return new Response(JSON.stringify({ok:true}),{headers:{...H,"Content-Type":"application/json; charset=utf-8","Set-Cookie":adminCookie("",0),"Cache-Control":"no-store"}})}
