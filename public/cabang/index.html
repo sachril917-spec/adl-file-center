@@ -1,97 +1,25 @@
 <!doctype html>
-<html lang="id">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#075be8">
-<title>ADL CABANG — Kirim Berkas</title>
-<link rel="manifest" href="/cabang/manifest.webmanifest">
-<link rel="icon" href="/icons/adl-cabang-192.png" type="image/png">
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><link rel="manifest" href="/pusat/manifest.webmanifest"><meta name="theme-color" content="#1769d2"><link rel="icon" href="/icons/pusat.svg" type="image/svg+xml"><title>Pusat Berkas ADL</title>
 <style>
-:root{color-scheme:light;--blue:#075be8;--navy:#08265c;--bg:#f2f6ff}
-*{box-sizing:border-box}body{margin:0;padding:18px;font-family:Arial,sans-serif;background:linear-gradient(160deg,#e8f1ff,#f7f9fc);color:#172033;min-height:100vh}
-main{max-width:620px;margin:18px auto;background:#fff;padding:22px;border-radius:20px;box-shadow:0 12px 34px #08265c18}
-.brand{display:flex;align-items:center;gap:13px;margin-bottom:18px}.brand img{width:62px;height:62px;object-fit:contain;border-radius:16px}
-h1{font-size:24px;margin:0;color:var(--navy)}h2{font-size:19px;margin:0 0 8px;color:var(--navy)}
-.sub{margin:6px 0 0;color:#64748b;font-size:14px;line-height:1.5}
-label{display:block;margin-top:18px;font-weight:700;font-size:14px}
-select,input,button{display:block;width:100%;margin-top:8px;padding:14px;border:1px solid #cbd5e1;border-radius:12px;font-size:16px;background:white}
-input[type=file]{padding:11px}button{background:var(--blue);color:white;border:0;font-weight:700;cursor:pointer}button:disabled{opacity:.65}
-#msg,.status{padding:12px;border-radius:10px;background:#f1f5f9;min-height:20px;overflow-wrap:anywhere;line-height:1.5}
-.note{font-size:12px;color:#64748b;line-height:1.5;margin-top:16px}
-.card{border:1px solid #e5eaf2;border-radius:16px;padding:16px;margin-top:18px}
-.status.ok{background:#e6f7ed;color:#166534}.status.wait{background:#fff0e8;color:#9a3412}.status.err{background:#fff0f0;color:#b42318}
-.branch-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
-.branch-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px;border:1px solid #e5eaf2;border-radius:12px;font-size:14px}
-.branch-name{font-weight:700;overflow-wrap:anywhere}.pill{flex-shrink:0;border-radius:20px;padding:5px 8px;font-size:12px;font-weight:700}
-.pill.ok{background:#dcfce7;color:#166534}.pill.wait{background:#ffedd5;color:#9a3412}.pill.err{background:#fee2e2;color:#b42318}
-@media(max-width:420px){.branch-grid{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
-<main>
-<div class="brand"><img src="/icons/adl-cabang-192.png" alt="Logo ADL Cabang"><div><h1>Kirim Berkas ADL</h1><p class="sub">Kirim laporan cabang ke pusat</p></div></div>
-<form id="uploadForm">
-<label for="b">Cabang</label><select id="b" name="branch" required><option value="">Memuat daftar cabang...</option></select>
-<label for="category">Kategori laporan</label>
-<select id="category" required>
-<option value="Bukan SO">Bukan SO</option>
-<option value="File SO">File SO (Stok Opname)</option>
-</select>
-<label for="t">Keterangan laporan (opsional)</label><input id="t" name="reportType" placeholder="Contoh: SO alat tulis bulan ini">
-<label for="f">Pilih file</label><input id="f" name="file" type="file" multiple required>
-<button id="sendBtn" type="submit">Kirim Berkas ke Pusat</button>
-</form>
-<p id="msg" role="status" aria-live="polite">Siap mengirim berkas.</p>
-<section class="card">
-<h2>Status File SO Bulan Ini</h2>
-<p class="sub">Setiap cabang wajib mengirim File SO setiap bulan. Status bulan berjalan diperiksa otomatis; bulan berikutnya akan mulai dihitung lagi tanpa menghapus riwayat berkas lama.</p>
-<div id="periodLabel" class="status">Memuat status bulan ini...</div>
-<div id="allBranchStatus" class="branch-grid" aria-live="polite"></div>
-<button id="checkStatus" type="button">Periksa ulang semua status</button>
-</section>
-<p class="note">Status diperbarui otomatis setiap 30 detik. Riwayat berkas lama tidak dihapus. Jangan tutup halaman saat pengiriman berlangsung.</p>
+:root{font-family:Arial,Helvetica,sans-serif;color:#172033;background:#f2f5fa}*{box-sizing:border-box}body{margin:0;padding:16px}main{max-width:1000px;margin:0 auto}.card{background:#fff;border:1px solid #e5e9f0;border-radius:22px;padding:20px;margin:0 0 16px;box-shadow:0 5px 20px #1720330a}h1{font-size:26px;line-height:1.25;margin:0 0 8px}h2{font-size:20px;margin:0 0 8px}.sub{color:#687386;font-size:14px;line-height:1.5}button,select,input{font:inherit;border:1px solid #d5dbe5;border-radius:12px;padding:11px;background:#fff;min-height:42px}button{background:#1769d2;color:#fff;border:0;font-weight:700;cursor:pointer}button:disabled{opacity:.6}.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}.controls input{grid-column:1/-1;width:100%}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}.stat{background:#f4f7fc;border-radius:16px;padding:14px;min-width:0}.stat span{display:block;color:#596579;font-size:14px}.stat strong{display:block;font-size:24px;margin-top:5px;overflow-wrap:anywhere}.status{margin-top:14px;color:#687386;line-height:1.5}.error{color:#a52b2b}.empty{padding:22px;text-align:center;color:#687386}.so-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.so-stat{background:#f4f7fc;border-radius:14px;padding:12px}.so-stat span{display:block;color:#596579;font-size:13px}.so-stat strong{font-size:22px;display:block;margin-top:4px}.period{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.period select{flex:1;min-width:120px}.so-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:14px}.so-branch{border:1px solid #e0e5ed;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}.so-name{font-weight:700;font-size:14px;overflow-wrap:anywhere}.badge{font-size:12px;font-weight:700;border-radius:999px;padding:6px 8px;white-space:nowrap}.done{background:#e6f7ed;color:#167342}.pending{background:#fff0e8;color:#a64b17}.branch{border:1px solid #e0e5ed;border-radius:16px;margin:12px 0;overflow:hidden}.branch summary{background:#f6f8fc;padding:16px;font-size:18px;font-weight:700;cursor:pointer}.count{float:right;color:#596579;font-size:14px;font-weight:400}.file{padding:16px;border-top:1px solid #e7ebf2;overflow-wrap:anywhere}.file h3{font-size:16px;line-height:1.4;margin:0 0 10px;overflow-wrap:anywhere}.meta{color:#687386;font-size:14px;line-height:1.6;margin-bottom:12px}.download,.previewBtn{display:inline-block;text-decoration:none;background:#1769d2;color:white;padding:10px 13px;border-radius:10px;font-weight:700;font-size:14px;border:0}.previewBtn{background:#167342;margin:0 6px 6px 0}.smallnote{font-size:13px;color:#687386;margin-top:12px}#previewModal{display:none;position:fixed;inset:0;background:#172033aa;z-index:9999;padding:12px;overflow:auto}#previewPanel{max-width:1000px;margin:12px auto;background:#fff;border-radius:16px;padding:16px;min-height:40vh}#previewTop{display:flex;justify-content:space-between;align-items:center;gap:12px}#previewTitle{margin:0;font-size:19px;overflow-wrap:anywhere}.previewTable{border-collapse:collapse;font-size:12px;min-width:100%;white-space:pre-wrap}.previewTable td,.previewTable th{border:1px solid #d5dbe5;padding:6px;vertical-align:top}.previewTable th{background:#f4f7fc;position:sticky;top:0}.previewText{line-height:1.65;overflow-wrap:anywhere}.previewText table{max-width:100%;border-collapse:collapse}.previewText td,.previewText th{border:1px solid #ddd;padding:6px}@media(max-width:600px){body{padding:12px}.card{padding:16px;border-radius:18px}h1{font-size:23px}.stats{gap:7px}.stat{padding:11px}.stat strong{font-size:20px}.controls{grid-template-columns:1fr 1fr}.controls input{grid-column:1/-1}.controls select:last-child{grid-column:1/-1}.so-grid{grid-template-columns:1fr}.so-branch{padding:10px}.so-name{font-size:13px}}
+</style></head><body><main>
+<section class="card"><h1>📥 Pusat Berkas ADL</h1><div class="sub">Daftar berkas dari seluruh cabang. Data diperbarui otomatis setiap 30 detik.</div>
+<div class="stats"><div class="stat"><span>Total berkas</span><strong id="total">—</strong></div><div class="stat"><span>Cabang mengirim</span><strong id="branchesCount">—</strong></div><div class="stat"><span>Ukuran total</span><strong id="size">—</strong></div></div><div style="margin-top:16px"><button id="reload" type="button" onclick="load()">↻ Muat ulang</button></div><div id="status" class="status" aria-live="polite">Memuat data…</div></section>
+<section class="card"><h2>✅ Status File SO per Cabang</h2><div class="sub">Centang otomatis berdasarkan File SO pada periode terpilih. Riwayat bulan sebelumnya tetap tersimpan.</div><div class="so-stats"><div class="so-stat"><span>Sudah mengirim SO</span><strong id="doneCount">—</strong></div><div class="so-stat"><span>Belum mengirim SO</span><strong id="pendingCount">—</strong></div></div><div class="period"><select id="soMonth" aria-label="Bulan"></select><select id="soYear" aria-label="Tahun"></select><button id="soReload" type="button">Periksa SO</button></div><div id="soStatus" class="status">Memuat status SO...</div><div id="soList" class="so-grid"></div></section>
+<section class="card"><div class="controls"><input id="q" placeholder="Cari nama file atau jenis laporan…"><select id="branchFilter"><option value="">Semua cabang</option></select><select id="yearFilter"><option value="">Semua tahun</option></select><select id="monthFilter"><option value="">Semua bulan</option><option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option><option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option><option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option></select></div><div id="list"></div><div class="smallnote">Excel dan Word dapat dipratinjau tanpa mengunduh. Berkas asli tetap tersimpan seperti semula.</div></section>
 </main>
+<div id="previewModal" role="dialog" aria-modal="true" aria-labelledby="previewTitle"><section id="previewPanel"><div id="previewTop"><h2 id="previewTitle">Pratinjau berkas</h2><button id="closePreview" type="button">Tutup ✕</button></div><div id="previewMessage" class="status">Memuat isi berkas...</div><div id="previewBody" style="overflow:auto;max-height:70vh;margin-top:12px"></div></section></div>
 <script>
-const branchSelect=document.getElementById('b'),form=document.getElementById('uploadForm'),message=document.getElementById('msg'),sendBtn=document.getElementById('sendBtn');
-const category=document.getElementById('category'),allBranchStatus=document.getElementById('allBranchStatus'),periodLabel=document.getElementById('periodLabel');
-let branchNames=[];
-const safe=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function monthPrefix(){const d=new Date();return d.getUTCFullYear()+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'}
-function reportIsSO(v){return ['file_so','file so','fileso'].includes(String(v||'').trim().toLowerCase())}
-function periodText(){return new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric',timeZone:'Asia/Jakarta'}).format(new Date())}
-async function checkSO(){
- if(!branchNames.length){allBranchStatus.textContent='Daftar cabang belum tersedia.';return}
- periodLabel.className='status';periodLabel.textContent='Memeriksa status untuk '+periodText()+'...';
- try{
-  const r=await fetch('/api/inbox',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);
-  const x=await r.json();if(!x.ok)throw Error(x.error||'Data tidak tersedia');
-  const files=x.files||[],prefix=monthPrefix();
-  const sent=new Set(files.filter(f=>String(f.key||'').startsWith(prefix)&&reportIsSO(f.reportType)).map(f=>f.branch));
-  const done=branchNames.filter(n=>sent.has(n)).length;
-  periodLabel.className='status '+(done===branchNames.length?'ok':'wait');
-  periodLabel.textContent='Periode '+periodText()+': '+done+' dari '+branchNames.length+' cabang sudah mengirim File SO. Status diperbarui otomatis setiap 30 detik.';
-  allBranchStatus.innerHTML=branchNames.map(n=>{const ok=sent.has(n);return '<div class="branch-item"><span class="branch-name">'+safe(n)+'</span><span class="pill '+(ok?'ok':'wait')+'">'+(ok?'✓ Sudah':'Belum')+'</span></div>'}).join('');
- }catch(e){periodLabel.className='status err';periodLabel.textContent='Gagal memeriksa status: '+e.message}
-}
-async function loadBranches(){try{
- const r=await fetch('/api/branches',{cache:'no-store'});if(!r.ok)throw Error('Daftar cabang tidak dapat dimuat');
- const data=await r.json();branchNames=data.branches||[];
- branchSelect.innerHTML='<option value="">Pilih cabang...</option>';
- branchNames.forEach(n=>branchSelect.add(new Option(n,n)));
- await checkSO();
- }catch(e){branchSelect.innerHTML='<option value="">Daftar cabang gagal dimuat</option>';periodLabel.className='status err';periodLabel.textContent='Gagal memuat daftar cabang. Periksa koneksi lalu muat ulang halaman.';message.textContent='Gagal memuat daftar cabang. Periksa koneksi lalu muat ulang halaman.'}}
-document.getElementById('checkStatus').addEventListener('click',checkSO);
-form.addEventListener('submit',async event=>{event.preventDefault();const files=document.getElementById('f').files;
-if(!files.length){message.textContent='Pilih file terlebih dahulu.';return}if(!branchSelect.value){message.textContent='Pilih cabang terlebih dahulu.';return}
-sendBtn.disabled=true;let berhasil=0,gagal=0;
-try{for(let i=0;i<files.length;i++){const data=new FormData();data.append('branch',branchSelect.value);
-const detail=document.getElementById('t').value.trim();data.append('reportType',category.value);
-data.append('file',files[i]);message.textContent='Mengirim file '+(i+1)+' dari '+files.length+'...'+(detail?' Keterangan: '+detail:'');
-try{const response=await fetch('/api/upload',{method:'POST',body:data});const result=await response.json();if(!response.ok||!result.ok)gagal++;else berhasil++}catch(e){gagal++}}
-message.textContent='Selesai. Berhasil: '+berhasil+', gagal: '+gagal+'.';
-if(gagal===0){const sentBranch=branchSelect.value;form.reset();branchSelect.value=sentBranch;await checkSO()}
-}finally{sendBtn.disabled=false}});
-loadBranches();setInterval(checkSO,30000);
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
+let allFiles=[],allBranches=[];const $=id=>document.getElementById(id);const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fmtSize(n){n=Number(n)||0;if(n<1024)return n+' B';if(n<1024*1024)return(n/1024).toFixed(1)+' KB';return(n/1024/1024).toFixed(2)+' MB'}
+function fmtDate(v){if(!v)return'Tanggal tidak tersedia';const d=new Date(v);if(isNaN(d))return String(v);return d.toLocaleString('id-ID',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Jakarta'})}
+function isSO(f){return['file_so','file so','fileso'].includes(String(f.reportType||'').trim().toLowerCase())}
+function selectedPrefix(){return $('soYear').value+'/'+$('soMonth').value+'/'}
+async function load(){const status=$('status'),btn=$('reload');btn.disabled=true;status.className='status';status.textContent='Memuat data…';try{const[rB,rF]=await Promise.all([fetch('/api/branches',{cache:'no-store'}),fetch('/api/inbox',{cache:'no-store'})]);if(!rB.ok||!rF.ok)throw Error('Server gagal membaca data');const bData=await rB.json(),x=await rF.json();if(!x.ok)throw Error(x.error||'Gagal mengambil daftar berkas');allFiles=Array.isArray(x.files)?x.files:[];allBranches=Array.isArray(bData.branches)?bData.branches:[...new Set(allFiles.map(f=>f.branch).filter(Boolean))];$('total').textContent=allFiles.length;$('branchesCount').textContent=new Set(allFiles.map(f=>f.branch||'Cabang tidak diketahui')).size;$('size').textContent=fmtSize(allFiles.reduce((s,f)=>s+(Number(f.size)||0),0));const oldB=$('branchFilter').value,oldY=$('yearFilter').value;const branches=[...new Set([...allBranches,...allFiles.map(f=>f.branch).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'id'));$('branchFilter').innerHTML='<option value="">Semua cabang</option>'+branches.map(b=>'<option value="'+esc(b)+'">'+esc(b)+'</option>').join('');if(branches.includes(oldB))$('branchFilter').value=oldB;const years=[...new Set(allFiles.map(f=>{const d=new Date(f.modified||0);return isNaN(d)?'':String(d.getFullYear())}).filter(Boolean))].sort().reverse();$('yearFilter').innerHTML='<option value="">Semua tahun</option>'+years.map(y=>'<option value="'+y+'">'+y+'</option>').join('');if(years.includes(oldY))$('yearFilter').value=oldY;status.textContent='Terakhir diperbarui: '+new Date().toLocaleTimeString('id-ID');render();renderSO()}catch(e){status.className='status error';status.textContent='Gagal memuat: '+e.message+' — pastikan halaman dibuka dari website ADL.';$('soStatus').textContent='Status SO belum dapat dimuat.'}finally{btn.disabled=false}}
+function renderSO(){const prefix=selectedPrefix(),sent=new Set(allFiles.filter(f=>String(f.key||'').startsWith(prefix)&&isSO(f)).map(f=>f.branch));const done=allBranches.filter(b=>sent.has(b)).length;$('doneCount').textContent=done;$('pendingCount').textContent=Math.max(0,allBranches.length-done);$('soList').innerHTML=allBranches.map(b=>'<div class="so-branch"><span class="so-name">'+esc(b)+'</span><span class="badge '+(sent.has(b)?'done':'pending')+'">'+(sent.has(b)?'✓ Sudah':'Belum')+'</span></div>').join('');$('soStatus').textContent='Periode: '+months[Number($('soMonth').value)-1]+' '+$('soYear').value+'. Terakhir diperiksa '+new Date().toLocaleTimeString('id-ID')+'.'}
+function render(){const q=$('q').value.trim().toLowerCase(),b=$('branchFilter').value,y=$('yearFilter').value,m=$('monthFilter').value;const files=allFiles.filter(f=>{const d=new Date(f.modified||0);return(!q||(String(f.name||'')+' '+String(f.reportType||'')+' '+String(f.branch||'')).toLowerCase().includes(q))&&(!b||f.branch===b)&&(!y||(!isNaN(d)&&String(d.getFullYear())===y))&&(!m||(!isNaN(d)&&String(d.getMonth()+1).padStart(2,'0')===m))});if(!files.length){$('list').innerHTML='<div class="empty">'+(allFiles.length?'Tidak ada berkas yang cocok dengan pencarian/filter.':'Belum ada berkas.')+'</div>';return}const groups={};for(const f of files)(groups[f.branch||'Cabang tidak diketahui']??=[]).push(f);$('list').innerHTML=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'id')).map(branch=>'<details class="branch" open><summary>'+esc(branch)+' <span class="count">'+groups[branch].length+' berkas</span></summary>'+groups[branch].map(f=>{const ext=String(f.name||'').split('.').pop().toLowerCase(),canPreview=['xlsx','xls','docx'].includes(ext);return'<div class="file"><h3>'+esc(f.name||'Berkas tanpa nama')+'</h3><div class="meta">Jenis laporan: '+esc(String(f.reportType||'Berkas').replace(/_/g,' '))+'<br>Diterima: '+esc(fmtDate(f.modified))+'<br>Ukuran: '+esc(fmtSize(f.size))+'</div>'+(canPreview?'<button type="button" class="previewBtn" onclick="previewFile('+JSON.stringify(f.key||'')+','+JSON.stringify(f.name||'Berkas')+')">👁 Lihat isi</button> ':'')+'<a class="download" href="/api/download?key='+encodeURIComponent(f.key||'')+'">⬇ Unduh berkas</a></div>'}).join('')+'</details>').join('')}
+async function loadScript(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(Error('Pustaka pratinjau gagal dimuat. Periksa koneksi internet.'));document.head.appendChild(s)})}
+async function previewFile(key,name){const modal=$('previewModal'),title=$('previewTitle'),msg=$('previewMessage'),body=$('previewBody');modal.style.display='block';title.textContent='Pratinjau: '+name;msg.textContent='Memuat isi berkas...';body.innerHTML='';try{const r=await fetch('/api/download?key='+encodeURIComponent(key),{cache:'no-store'});if(!r.ok)throw Error('Berkas gagal dibaca dari penyimpanan.');const ext=String(name).split('.').pop().toLowerCase(),buf=await r.arrayBuffer();if(['xlsx','xls'].includes(ext)){if(!window.XLSX){msg.textContent='Memuat pembaca Excel...';await loadScript('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js')}const wb=XLSX.read(buf,{type:'array'}),sheetName=wb.SheetNames[wb.SheetNames.length-1],ws=wb.Sheets[sheetName];if(!ws)throw Error('Lembar kerja tidak ditemukan.');msg.textContent='Lembar terakhir: '+sheetName+' · '+wb.SheetNames.length+' lembar tersedia.';const table=document.createElement('div');table.innerHTML=XLSX.utils.sheet_to_html(ws);const t=table.querySelector('table');if(t){t.className='previewTable';body.appendChild(t)}else body.textContent='Lembar kosong.'}else if(ext==='docx'){if(!window.mammoth){msg.textContent='Memuat pembaca Word...';await loadScript('https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js')}const result=await mammoth.convertToHtml({arrayBuffer:buf});msg.textContent='Pratinjau isi dokumen Word.';const article=document.createElement('article');article.className='previewText';article.innerHTML=result.value;body.appendChild(article)}else throw Error('Pratinjau mendukung Excel (.xlsx/.xls) dan Word (.docx).')}catch(e){msg.textContent='Tidak dapat menampilkan pratinjau: '+e.message;body.innerHTML=''}}
+$('closePreview').addEventListener('click',()=>{$('previewModal').style.display='none';$('previewBody').innerHTML=''});$('previewModal').addEventListener('click',e=>{if(e.target===$('previewModal'))$('previewModal').style.display='none'});$('q').addEventListener('input',render);$('branchFilter').addEventListener('change',render);$('yearFilter').addEventListener('change',render);$('monthFilter').addEventListener('change',render);$('soReload').addEventListener('click',renderSO);$('soMonth').addEventListener('change',renderSO);$('soYear').addEventListener('change',renderSO);$('soMonth').innerHTML=months.map((m,i)=>'<option value="'+String(i+1).padStart(2,'0')+'">'+m+'</option>').join('');$('soYear').innerHTML=Array.from({length:7},(_,i)=>new Date().getFullYear()+2-i).map(y=>'<option value="'+y+'">'+y+'</option>').join('');$('soMonth').value=String(new Date().getMonth()+1).padStart(2,'0');$('soYear').value=String(new Date().getFullYear());$('closePreview').addEventListener('click',()=>{$('previewModal').style.display='none';$('previewBody').innerHTML=''});$('previewModal').addEventListener('click',e=>{if(e.target===$('previewModal'))$('previewModal').style.display='none'});load();setInterval(load,30000);if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
 </script></body></html>
