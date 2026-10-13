@@ -67,8 +67,9 @@ async function checkSO(){
   const r=await fetch('/api/inbox',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);
   const x=await r.json();if(!x.ok)throw Error(x.error||'Data tidak tersedia');
   const files=x.files||[],prefix=monthPrefix();
-  const sent=new Set(files.filter(f=>String(f.key||'').startsWith(prefix)&&reportIsSO(f.reportType)).map(f=>f.branch));
-  const done=branchNames.filter(n=>sent.has(n)).length;
+const normBranch=v=>String(v||'').replace(/_/g,' ').replace(/\s+/g,' ').trim().toLowerCase();
+const sent=new Set(files.filter(f=>String(f.key||'').startsWith(prefix)&&reportIsSO(f.reportType)).map(f=>normBranch(f.branch)));
+const done=branchNames.filter(n=>sent.has(normBranch(n))).length;
   periodLabel.className='status '+(done===branchNames.length?'ok':'wait');
   periodLabel.textContent='Periode '+periodText()+': '+done+' dari '+branchNames.length+' cabang sudah mengirim File SO. Status diperbarui otomatis setiap 30 detik.';
   allBranchStatus.innerHTML=branchNames.map(n=>{const ok=sent.has(n);return '<div class="branch-item"><span class="branch-name">'+safe(n)+'</span><span class="pill '+(ok?'ok':'wait')+'">'+(ok?'✓ Sudah':'Belum')+'</span></div>'}).join('');
