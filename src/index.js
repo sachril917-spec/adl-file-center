@@ -99,6 +99,73 @@ export default {async fetch(req,e){
  if(p==="/api/health")return J({ok:true,storage:"Backblaze B2"});
  if(p==="/api/branches")return J({branches:BRANCHES});
  try{
+if (p === "/api/admin/login" && req.method === "POST") {
+  if (!adminOriginOK(req)) {
+    return J({ok:false,error:"Origin tidak valid."},403);
+  }
+
+  if (!e.ADMIN_PASSWORD) {
+    return J({ok:false,error:"ADMIN_PASSWORD belum tersedia."},500);
+  }
+
+  let data;
+  try {
+    data = await req.json();
+  } catch {
+    return J({ok:false,error:"Data login tidak valid."},400);
+  }
+
+  if (!await adminPasswordMatches(
+    data.password, e.ADMIN_PASSWORD
+  )) {
+    return J({ok:false,error:"Kata sandi salah."},401);
+  }
+
+  const exp = String(
+    Math.floor(Date.now()/1000) + ADMIN_SESSION_SECONDS
+  );
+  const sig = await adminMac(
+    e.ADMIN_PASSWORD, "adl-admin-v1:" + exp
+  );
+
+  return new Response(JSON.stringify({
+    ok:true, message:"Login admin berhasil."
+  }), {
+    headers:{
+      ...H,
+      "Content-Type":"application/json; charset=utf-8",
+      "Cache-Control":"no-store",
+      "Set-Cookie":adminCookie(exp+"."+sig,ADMIN_SESSION_SECONDS)
+    }
+  });
+}
+
+if (p === "/api/admin/check" && req.method === "GET") {
+  const ok = await adminSessionValid(req,e);
+  return new Response(JSON.stringify({ok}), {
+    headers:{
+      ...H,
+      "Content-Type":"application/json; charset=utf-8",
+      "Cache-Control":"no-store"
+    }
+  });
+}
+
+if (p === "/api/admin/logout" && req.method === "POST") {
+  if (!adminOriginOK(req)) {
+    return J({ok:false,error:"Origin tidak valid."},403);
+  }
+
+  return new Response(JSON.stringify({ok:true}), {
+    headers:{
+      ...H,
+      "Content-Type":"application/json; charset=utf-8",
+      "Set-Cookie":adminCookie("",0),
+      "Cache-Control":"no-store"
+    }
+  });
+}
+
   if(p==="/api/upload"&&req.method==="POST")return await upload(req,e);
   if(p==="/api/inbox"){let f=await list(e);f.sort((a,b)=>String(b.modified).localeCompare(String(a.modified)));return J({ok:true,files:f});}
   if(p==="/api/download"){let k=new URL(req.url).searchParams.get("key");if(!k||k.includes(".."))return new Response("Bad key",{status:400});let r=await s(e,k,"GET");let h=new Headers(r.headers);for(let [a,b] of Object.entries(H))h.set(a,b);return new Response(r.body,{status:r.status,headers:h});}
