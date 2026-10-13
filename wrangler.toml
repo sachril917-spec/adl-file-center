@@ -6,5 +6,5 @@ compatibility_date = "2026-10-01"
 directory = "./public"
 binding = "ASSETS"
 
-[ai]
+[[ai]]
 binding = "AI"
