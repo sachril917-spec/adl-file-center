@@ -44,7 +44,7 @@ try{
   },503);
 
   try{
-   const result=await e.AI.run("@cf/meta/llama-3.1-8b-instruct",{
+   const result=await e.AI.run("@cf/meta/llama-3.1-8b-instruct-fp8",{
     messages:[
      {
       role:"system",
