@@ -82,12 +82,12 @@ try{
     error:"Motivasi AI gagal",
     detail:String(err?.message||err).slice(0,300)
    },502);
+  
   }
  }
 
- }
-
- if(p==="/api/admin/login"&&req.method==="POST"){if(!adminOriginOK(req))return J({ok:false,error:"Origin tidak valid."},403);if(!e.ADMIN_PASSWORD)return J({ok:false,error:"ADMIN_PASSWORD belum tersedia."},500);let data;try{data=await req.json()}catch{return J({ok:false,error:"Data login tidak valid."},400)}if(!await adminPasswordMatches(data.password,e.ADMIN_PASSWORD))return J({ok:false,error:"Kata sandi salah."},401);const exp=String(Math.floor(Date.now()/1000)+ADMIN_SESSION_SECONDS),sig=await adminMac(e.ADMIN_PASSWORD,"adl-admin-v1:"+exp);return new Response(JSON.stringify({ok:true,message:"Login admin berhasil."}),{headers:{...H,"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","Set-Cookie":adminCookie(exp+"."+sig,ADMIN_SESSION_SECONDS)}})}
+ if(p==="/api/admin/login"&&req.method==="POST")
+{if(!adminOriginOK(req))return J({ok:false,error:"Origin tidak valid."},403);if(!e.ADMIN_PASSWORD)return J({ok:false,error:"ADMIN_PASSWORD belum tersedia."},500);let data;try{data=await req.json()}catch{return J({ok:false,error:"Data login tidak valid."},400)}if(!await adminPasswordMatches(data.password,e.ADMIN_PASSWORD))return J({ok:false,error:"Kata sandi salah."},401);const exp=String(Math.floor(Date.now()/1000)+ADMIN_SESSION_SECONDS),sig=await adminMac(e.ADMIN_PASSWORD,"adl-admin-v1:"+exp);return new Response(JSON.stringify({ok:true,message:"Login admin berhasil."}),{headers:{...H,"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","Set-Cookie":adminCookie(exp+"."+sig,ADMIN_SESSION_SECONDS)}})}
  if(p==="/api/admin/check"&&req.method==="GET")return J({ok:await adminSessionValid(req,e)});
  if(p==="/api/admin/logout"&&req.method==="POST"){if(!adminOriginOK(req))return J({ok:false,error:"Origin tidak valid."},403);return new Response(JSON.stringify({ok:true}),{headers:{...H,"Content-Type":"application/json; charset=utf-8","Set-Cookie":adminCookie("",0),"Cache-Control":"no-store"}})}
  if(p.startsWith("/api/admin/")&&req.method==="POST"&&!await adminSessionValid(req,e))return J({ok:false,error:"Admin belum login."},401);
