@@ -64,9 +64,18 @@ async function checkSO(){
  if(!branchNames.length){allBranchStatus.textContent='Daftar cabang belum tersedia.';return}
  periodLabel.className='status';periodLabel.textContent='Memeriksa status untuk '+periodText()+'...';
  try{
-  const r=await fetch('/api/inbox',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);
-  const x=await r.json();if(!x.ok)throw Error(x.error||'Data tidak tersedia');
-  const files=x.files||[],prefix=monthPrefix();
+  
+const r = await fetch('/api/so-status?year=' + new Date().getFullYear() + '&month=' + String(new Date().getMonth() + 1).padStart(2, '0'), { cache: 'no-store' });
+if (!r.ok) throw Error('HTTP ' + r.status);
+const x = await r.json();
+if (!x.ok) throw Error(x.error || 'Data tidak tersedia');
+const files = (x.branches || []).filter(b => b.sent).map(b => ({
+  branch: b.branch,
+  reportType: 'file_so',
+  key: monthPrefix()
+}));
+const prefix = monthPrefix();
+
 const normBranch=v=>String(v||'').replace(/_/g,' ').replace(/\s+/g,' ').trim().toLowerCase();
 const sent=new Set(files.filter(f=>String(f.key||'').startsWith(prefix)&&reportIsSO(f.reportType)).map(f=>normBranch(f.branch)));
 const done=branchNames.filter(n=>sent.has(normBranch(n))).length;
