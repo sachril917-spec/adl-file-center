@@ -1,5 +1,56 @@
 <!doctype html>
 <html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><link rel="manifest" href="/pusat/manifest.webmanifest"><meta name="theme-color" content="#1769d2"><meta name="adl-preview-fix" content="2026-10-13-v3"><link rel="icon" href="/icons/pusat.svg" type="image/svg+xml"><title>Pusat Berkas ADL</title>
+
+/* Perbaikan pratinjau Word di HP */
+#previewBody {
+  max-width: 100%;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.previewText {
+  min-width: 0;
+  max-width: 100%;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.previewText table {
+  width: max-content !important;
+  max-width: none !important;
+  table-layout: auto !important;
+  border-collapse: collapse;
+  margin: 12px 0;
+}
+
+.previewText tr {
+  height: auto !important;
+}
+
+.previewText td,
+.previewText th {
+  min-width: 70px;
+  max-width: 280px;
+  padding: 8px;
+  vertical-align: top;
+  white-space: normal !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  writing-mode: horizontal-tb !important;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.previewText p {
+  margin: 8px 0;
+}
+
+.previewText img {
+  max-width: 100%;
+  height: auto;
+}
+
 <style>
 :root{font-family:Arial,Helvetica,sans-serif;color:#172033;background:#f2f5fa}*{box-sizing:border-box}body{margin:0;padding:16px}main{max-width:1000px;margin:0 auto}.card{background:#fff;border:1px solid #e5e9f0;border-radius:22px;padding:20px;margin:0 0 16px;box-shadow:0 5px 20px #1720330a}h1{font-size:26px;line-height:1.25;margin:0 0 8px}h2{font-size:20px;margin:0 0 8px}.sub{color:#687386;font-size:14px;line-height:1.5}button,select,input{font:inherit;border:1px solid #d5dbe5;border-radius:12px;padding:11px;background:#fff;min-height:42px}button{background:#1769d2;color:#fff;border:0;font-weight:700;cursor:pointer}button:disabled{opacity:.6}.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}.controls input{grid-column:1/-1;width:100%}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}.stat{background:#f4f7fc;border-radius:16px;padding:14px;min-width:0}.stat span{display:block;color:#596579;font-size:14px}.stat strong{display:block;font-size:24px;margin-top:5px;overflow-wrap:anywhere}.status{margin-top:14px;color:#687386;line-height:1.5}.error{color:#a52b2b}.empty{padding:22px;text-align:center;color:#687386}.so-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.so-stat{background:#f4f7fc;border-radius:14px;padding:12px}.so-stat span{display:block;color:#596579;font-size:13px}.so-stat strong{font-size:22px;display:block;margin-top:4px}.period{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.period select{flex:1;min-width:120px}.so-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:14px}.so-branch{border:1px solid #e0e5ed;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}.so-name{font-weight:700;font-size:14px;overflow-wrap:anywhere}.badge{font-size:12px;font-weight:700;border-radius:999px;padding:6px 8px;white-space:nowrap}.done{background:#e6f7ed;color:#167342}.pending{background:#fff0e8;color:#a64b17}.branch{border:1px solid #e0e5ed;border-radius:16px;margin:12px 0;overflow:hidden}.branch summary{background:#f6f8fc;padding:16px;font-size:18px;font-weight:700;cursor:pointer}.count{float:right;color:#596579;font-size:14px;font-weight:400}.file{padding:16px;border-top:1px solid #e7ebf2;overflow-wrap:anywhere}.file h3{font-size:16px;line-height:1.4;margin:0 0 10px;overflow-wrap:anywhere}.meta{color:#687386;font-size:14px;line-height:1.6;margin-bottom:12px}.download,.previewBtn{display:inline-block;text-decoration:none;background:#1769d2;color:white;padding:10px 13px;border-radius:10px;font-weight:700;font-size:14px;border:0}.previewBtn{background:#167342;margin:0 6px 6px 0}.smallnote{font-size:13px;color:#687386;margin-top:12px}#previewModal{display:none;position:fixed;inset:0;background:#172033aa;z-index:9999;padding:12px;overflow:auto}#previewPanel{max-width:1000px;margin:12px auto;background:#fff;border-radius:16px;padding:16px;min-height:40vh}#previewTop{display:flex;justify-content:space-between;align-items:center;gap:12px}#previewTitle{margin:0;font-size:19px;overflow-wrap:anywhere}.previewTable{border-collapse:collapse;font-size:12px;min-width:100%;white-space:pre-wrap}.previewTable td,.previewTable th{border:1px solid #d5dbe5;padding:6px;vertical-align:top}.previewTable th{background:#f4f7fc;position:sticky;top:0}.previewText{line-height:1.65;overflow-wrap:anywhere}.previewText table{max-width:100%;border-collapse:collapse}.previewText td,.previewText th{border:1px solid #ddd;padding:6px}@media(max-width:600px){body{padding:12px}.card{padding:16px;border-radius:18px}h1{font-size:23px}.stats{gap:7px}.stat{padding:11px}.stat strong{font-size:20px}.controls{grid-template-columns:1fr 1fr}.controls input{grid-column:1/-1}.controls select:last-child{grid-column:1/-1}.so-grid{grid-template-columns:1fr}.so-branch{padding:10px}.so-name{font-size:13px}}
 
