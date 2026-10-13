@@ -167,7 +167,23 @@ if (p === "/api/admin/logout" && req.method === "POST") {
 }
 
   if(p==="/api/upload"&&req.method==="POST")return await upload(req,e);
-  if(p==="/api/inbox"){let f=await list(e);f.sort((a,b)=>String(b.modified).localeCompare(String(a.modified)));return J({ok:true,files:f});}
+  if (p === "/api/inbox") {
+  if (!(await adminSessionValid(req, e))) {
+    return J({
+      ok: false,
+      error: "Admin belum login."
+    }, 401);
+  }
+
+  let f = await list(e);
+  f.sort((a, b) =>
+    String(b.modified).localeCompare(
+      String(a.modified)
+    )
+  );
+
+  return J({ ok: true, files: f });
+}
   if(p==="/api/download"){let k=new URL(req.url).searchParams.get("key");if(!k||k.includes(".."))return new Response("Bad key",{status:400});let r=await s(e,k,"GET");let h=new Headers(r.headers);for(let [a,b] of Object.entries(H))h.set(a,b);return new Response(r.body,{status:r.status,headers:h});}
  }catch(err){return J({ok:false,error:err.message},500)}
  return e.ASSETS.fetch(req);
