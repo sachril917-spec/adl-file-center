@@ -167,6 +167,49 @@ if (p === "/api/admin/logout" && req.method === "POST") {
 }
 
   if(p==="/api/upload"&&req.method==="POST")return await upload(req,e);
+
+if (p === "/api/so-status" && req.method === "GET") {
+  const url = new URL(req.url);
+  const year = url.searchParams.get("year") ||
+    String(new Date().getUTCFullYear());
+  const month = url.searchParams.get("month") ||
+    String(new Date().getUTCMonth() + 1).padStart(2, "0");
+
+  if (!/^\d{4}$/.test(year) ||
+      !/^(0[1-9]|1[0-2])$/.test(month)) {
+    return J({ok:false,error:"Periode tidak valid."},400);
+  }
+
+  const prefix = `${year}/${month}/`;
+  const files = await list(e);
+  const norm = v => String(v || "")
+    .replace(/_/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+
+  const sent = new Set(
+    files
+      .filter(f =>
+        String(f.key || "").startsWith(prefix) &&
+        ["file_so", "file so", "fileso"]
+          .includes(String(f.reportType || "")
+            .trim().toLowerCase())
+      )
+      .map(f => norm(f.branch))
+  );
+
+  return J({
+    ok: true,
+    year,
+    month,
+    branches: BRANCHES.map(branch => ({
+      branch,
+      sent: sent.has(norm(branch))
+    }))
+  });
+}
+
   if (p === "/api/inbox") {
   if (!(await adminSessionValid(req, e))) {
     return J({
