@@ -131,7 +131,7 @@ const r=await fetch('/api/so-status?year='+year+'&month='+month,{cache:'no-store
 if(!r.ok)throw Error('HTTP '+r.status);
 const x=await r.json();
 if(!x.ok)throw Error(x.error||'Data tidak tersedia');
-const sent=new Set((x.branches||[]).filter(b=>b.sent).map(b=>String(b.branch||'').trim().toLowerCase()));
+const sent=new Set((x.branches||x.cabang||[]).filter(b=>b.sent===true||b.dikirim===true||b.dikirim==='benar').map(b=>String(b.branch||b.cabang||'').trim().toLowerCase()));
 const done=branchNames.filter(n=>sent.has(String(n).trim().toLowerCase())).length;
   document.getElementById('totalBranches').textContent=branchNames.length;document.getElementById('sentBranches').textContent=done;document.getElementById('waitingBranches').textContent=branchNames.length-done;
   periodLabel.className='status '+(done===branchNames.length?'ok':'wait');
