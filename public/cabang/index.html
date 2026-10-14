@@ -77,7 +77,7 @@ const dailyItems=[
  ['😂 Bos boleh pusing','Kalau pekerjaan bikin kepala panas, istirahat sejenak. Jangan ajak kalkulator ikut berdebat—dia cuma bisa menghitung, bukan memahami perasaan.']
 ];
 
-async function renderDaily(){
+async function renderDaily(forceNew=false){
  const title=document.getElementById('dailyTitle');
  const message=document.getElementById('dailyMessage');
  const date=document.getElementById('dailyDate');
@@ -90,7 +90,7 @@ async function renderDaily(){
  }).format(new Date());
 
  try{
-  const response=await fetch('/api/daily-motivation',{
+  const response=await fetch('/api/daily-motivation'+(forceNew?'?new=1':''),{
    cache:'no-store'
   });
   const result=await response.json();
@@ -109,7 +109,7 @@ async function renderDaily(){
  }
 }
 
-document.getElementById('dailyRefresh').addEventListener('click',renderDaily);
+document.getElementById('dailyRefresh').addEventListener('click',()=>renderDaily(true));
 renderDaily();
 
 
