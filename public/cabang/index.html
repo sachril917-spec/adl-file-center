@@ -62,54 +62,88 @@ button{display:block;width:100%;margin-top:18px;padding:16px;border:0;border-rad
 </main>
 <script>
 
-const dailyItems=[
- ['🤲 Niatkan karena Allah','Bekerjalah dengan jujur. Semoga lelah mencari nafkah menjadi jalan rezeki yang halal dan berkah. Bonusnya: semoga pelanggan bilang “terima kasih”, bukan “bisa kurang, Mas?”'],
- ['😂 Pejuang nafkah','Rezeki memang sudah diatur Allah, tapi alarm tetap harus disetel. Tawakal itu penting; bangun kesiangan jangan dijadikan strategi bisnis.'],
- ['💪 Kerja yang amanah','Tidak harus langsung sukses besar. Yang penting hari ini lebih jujur, lebih rajin, dan tidak mengurangi timbangan. Diskon boleh, kejujuran jangan ikut didiskon.'],
- ['😄 Sabar menghadapi pelanggan','Sabar itu berpahala. Apalagi saat pelanggan bertanya harga, lalu berkata “di toko sebelah lebih murah”. Senyum dulu, hitung untungnya belakangan.'],
- ['☕ Rezeki halal, hati tenang','Cari nafkah dengan cara baik, jangan lupa istirahat dan berdoa. Kopi boleh pahit, ucapan ke pelanggan jangan ikut pahit.'],
- ['📦 Amanah dalam pekerjaan','Barang harus dihitung teliti, uang harus dicatat rapi, janji harus ditepati. Jangan sampai stok opname lebih menegangkan daripada ujian sekolah.'],
- ['🌙 Jangan menyerah','Kalau hari ini berat, tarik napas dan berdoa. Masalah boleh menumpuk, tapi jangan ikut menumpuk alasan untuk tidak berusaha.'],
- ['🤣 Senyum itu sedekah','Bekerja serius bukan berarti wajah harus serius 24 jam. Nanti dikira sedang menghitung utang negara, padahal menghitung pulpen.'],
- ['🕌 Berkah lebih penting','Bukan cuma banyaknya hasil, tetapi juga cara mendapatkannya. Rezeki halal semoga menenangkan hati—dan semoga sandal saat pulang tidak hilang sebelah.'],
- ['🧾 Teliti dan jujur','Periksa angka dua kali, catat dengan benar, dan tetap amanah. Salah hitung bisa bikin pusing; salah niat bisa bikin lupa tujuan.'],
- ['🙏 Syukuri proses','Syukuri pekerjaan yang ada sambil terus memperbaiki diri. Mengeluh boleh sebentar, asal jangan sampai lebih rajin mengeluh daripada bekerja.'],
- ['😂 Bos boleh pusing','Kalau pekerjaan bikin kepala panas, istirahat sejenak. Jangan ajak kalkulator ikut berdebat—dia cuma bisa menghitung, bukan memahami perasaan.']
+
+const dailyItems = [
+  {
+    title: "Jujur Itu Lebih Berharga",
+    message: "Bekerjalah dengan jujur, meski tidak ada yang mengawasi. Keuntungan bisa dicari, tetapi kepercayaan pelanggan harus dijaga. Usaha yang baik dibangun dengan kejujuran."
+  },
+  {
+    title: "Rezeki Halal, Hati Tenang",
+    message: "Jangan hanya mengejar penghasilan besar. Pastikan cara mendapatkannya tetap halal dan tidak merugikan orang lain. Semoga lelah kita menjadi jalan rezeki yang berkah."
+  },
+  {
+    title: "Pelanggan Adalah Amanah",
+    message: "Layani setiap pelanggan dengan ramah, meski mereka belum tentu membeli. Jangan meremehkan siapa pun. Pelayanan yang baik meninggalkan kesan, bahkan setelah pelanggan pulang."
+  },
+  {
+    title: "Tidak Harus Hebat Sekaligus",
+    message: "Kesuksesan tidak selalu datang dalam sehari. Rapikan pekerjaan, perbaiki kesalahan, dan terus belajar. Langkah kecil yang dilakukan dengan konsisten bisa membawa perubahan besar."
+  },
+  {
+    title: "Untung Boleh, Curang Jangan",
+    message: "Mencari keuntungan itu wajar, tetapi jangan mengorbankan kejujuran. Lebih baik untung sewajarnya dengan hati tenang daripada untung besar dengan merugikan orang lain."
+  },
+  {
+    title: "Kerja Serius, Tetap Bersyukur",
+    message: "Tidak semua hari berjalan sesuai rencana. Saat penjualan ramai, bersyukurlah. Saat sepi, evaluasi dan tetap berusaha. Jangan menyerah hanya karena hasil hari ini belum sesuai harapan."
+  },
+  {
+    title: "Amanah Terlihat dari Hal Kecil",
+    message: "Menghitung uang dengan teliti, menjaga barang, dan menepati janji adalah bentuk amanah. Jangan menunggu pekerjaan besar untuk membuktikan bahwa kita bisa dipercaya."
+  },
+  {
+    title: "Sabar Juga Perlu Senyum",
+    message: "Ada pelanggan yang banyak bertanya, lalu pulang tanpa membeli. Tidak apa-apa, tetap layani dengan baik. Senyum tidak mengurangi keuntungan, tetapi marah bisa menghilangkan pelanggan."
+  },
+  {
+    title: "Bekerja Juga Bentuk Ikhtiar",
+    message: "Berdoa memberi kita harapan, bekerja adalah bagian dari ikhtiar. Lakukan yang terbaik, jaga kejujuran, dan serahkan hasilnya kepada Allah."
+  },
+  {
+    title: "Jangan Malu Memulai Lagi",
+    message: "Kesalahan bukan akhir dari perjalanan. Akui, perbaiki, lalu lanjutkan dengan cara yang lebih baik. Orang yang mau belajar punya kesempatan untuk terus berkembang."
+  },
+  {
+    title: "Bukan Sekadar Mengejar Uang",
+    message: "Bekerja bukan hanya untuk membawa pulang penghasilan, tetapi juga untuk memenuhi tanggung jawab. Semoga nafkah yang kita berikan kepada keluarga berasal dari usaha yang baik dan halal."
+  },
+  {
+    title: "Teliti Sekarang, Tenang Kemudian",
+    message: "Periksa barang, hitung uang, dan catat transaksi dengan benar. Sedikit ketelitian bisa mencegah banyak masalah. Jangan sampai salah hitung membuat kepala pusing seharian!"
+  }
 ];
 
-async function renderDaily(forceNew=false){
- const title=document.getElementById('dailyTitle');
- const message=document.getElementById('dailyMessage');
- const date=document.getElementById('dailyDate');
+let dailyIndex = Math.floor(Date.now() / 86400000) % dailyItems.length;
 
- title.textContent='Menyiapkan motivasi...';
- message.textContent='AI sedang menyiapkan pesan semangat untuk hari ini.';
- date.textContent=new Intl.DateTimeFormat('id-ID',{
-  weekday:'long',day:'numeric',month:'long',year:'numeric',
-  timeZone:'Asia/Jakarta'
- }).format(new Date());
-
- try{
-  const response=await fetch('/api/daily-motivation'+(forceNew?'?new=1':''),{
-   cache:'no-store'
-  });
-  const result=await response.json();
-
-  if(!response.ok||!result.ok){
-   throw new Error(result.error||'Motivasi AI belum tersedia');
+function renderDaily(forceNew = false) {
+  if (forceNew) {
+    let nextIndex;
+    do {
+      nextIndex = Math.floor(Math.random() * dailyItems.length);
+    } while (nextIndex === dailyIndex && dailyItems.length > 1);
+    dailyIndex = nextIndex;
   }
 
-  title.textContent=result.title||'Semangat Hari Ini';
-  message.textContent=result.message||'Terus bekerja dengan jujur dan amanah.';
-  date.textContent='Motivasi AI • '+date.textContent;
- }catch(error){
-  title.textContent='Tetap Semangat!';
-  message.textContent='Bekerjalah dengan jujur, amanah, dan sabar. Semoga ikhtiar hari ini menjadi jalan rezeki yang halal dan berkah.';
-  date.textContent='Motivasi harian';
- }
+  const item = dailyItems[dailyIndex];
+  document.getElementById("dailyTitle").textContent = item.title;
+  document.getElementById("dailyMessage").textContent = item.message;
+  document.getElementById("dailyDate").textContent =
+    "Motivasi pilihan • " +
+    new Intl.DateTimeFormat("id-ID", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "Asia/Jakarta"
+    }).format(new Date());
 }
 
-document.getElementById('dailyRefresh').addEventListener('click',()=>renderDaily(true));
+document.getElementById("dailyRefresh").addEventListener(
+  "click",
+  () => renderDaily(true)
+);
+
 renderDaily();
 
 
