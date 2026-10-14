@@ -147,7 +147,7 @@ const done=branchNames.filter(n=>sent.has(normBranch(n))).length;
   document.getElementById('totalBranches').textContent=branchNames.length;document.getElementById('sentBranches').textContent=done;document.getElementById('waitingBranches').textContent=branchNames.length-done;
   periodLabel.className='status '+(done===branchNames.length?'ok':'wait');
   periodLabel.textContent='Periode '+periodText()+': '+done+' dari '+branchNames.length+' cabang sudah mengirim File SO. Status diperbarui otomatis setiap 30 detik.';
-  allBranchStatus.innerHTML=branchNames.map(n=>{const ok=sent.has(n);return '<div class="branch-item"><span class="branch-name">'+safe(n)+'</span><span class="pill '+(ok?'ok':'wait')+'">'+(ok?'✓ Sudah':'Belum')+'</span></div>'}).join('');
+  allBranchStatus.innerHTML=branchNames.map(n=>{const ok=sent.has(normBranch(n));return '<div class="branch-item"><span class="branch-name">'+safe(n)+'</span><span class="pill '+(ok?'ok':'wait')+'">'+(ok?'✓ Sudah':'Belum')+'</span></div>'}).join('');
  }catch(e){periodLabel.className='status err';periodLabel.textContent='Gagal memeriksa status: '+e.message}
 }
 async function loadBranches(){try{
