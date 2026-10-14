@@ -35,7 +35,7 @@ try{
    const old=await s(e,key,"GET");
    if(old.ok){
     const saved=await old.json();
-    if(saved.title&&saved.message)return J({...saved,cached:true});
+    if(saved.title&&saved.message&&url.searchParams.get("new")!=="1")return J({...saved,cached:true});
    }
   }catch{}
 
