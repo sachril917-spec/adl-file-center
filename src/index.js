@@ -40,6 +40,84 @@ if(p==="/api/daily-motivation"&&req.method==="GET"){
  if(p==="/api/admin/delete-file"&&req.method==="POST"){let d;try{d=await req.json()}catch{return J({ok:false,error:"Data tidak valid."},400)}const key=d.key;if(!validFileKey(key))return J({ok:false,error:"Kunci berkas tidak valid."},400);const r=await s(e,key,"DELETE");if(!r.ok&&r.status!==404)return J({ok:false,error:"Backblaze gagal menghapus berkas.",status:r.status},502);return J({ok:true,key,message:"Berkas dihapus dari penyimpanan."});}
  if(p==="/api/upload"&&req.method==="POST")return await upload(req,e);
  if(p==="/api/so-status"&&req.method==="GET"){const year=url.searchParams.get("year")||String(new Date().getUTCFullYear()),month=url.searchParams.get("month")||String(new Date().getUTCMonth()+1).padStart(2,"0");if(!/^\d{4}$/.test(year)||! /^(0[1-9]|1[0-2])$/.test(month))return J({ok:false,error:"Periode tidak valid."},400);const prefix=`${year}/${month}/`,files=await list(e),norm=v=>String(v||"").replace(/_/g," ").replace(/\s+/g," ").trim().toLowerCase(),sent=new Set(files.filter(f=>String(f.key||"").startsWith(prefix)&&["file_so","file so","fileso"].includes(String(f.reportType||"").trim().toLowerCase())).map(f=>norm(f.branch)));const branches=await getBranches(e);return J({ok:true,year,month,branches:branches.map(branch=>({branch,sent:sent.has(norm(branch))}))});}
+
+ if(p==="/api/admin/so-final"&&req.method==="GET"){
+  if(!await adminSessionValid(req,e))return J({ok:false,error:"Admin belum login."},401);
+  let records=[];
+  try{
+    const r=await s(e,"__config/so-final-records.json","GET");
+    if(r.ok){
+      const d=await r.json();
+      if(Array.isArray(d.records))records=d.records;
+    }
+    else if(r.status!==404)return J({ok:false,error:"Gagal membaca data SO Final."},502);
+  }catch(err){
+    return J({ok:false,error:"Gagal membaca data SO Final: "+err.message},500);
+  }
+  return J({ok:true,records});
+ }
+
+ if(p==="/api/admin/so-final"&&req.method==="POST"){
+  let form;
+  try{form=await req.formData();}
+  catch{return J({ok:false,error:"Form SO Final tidak valid."},400);}
+
+  const branch=String(form.get("branch")||"").trim();
+  const start=String(form.get("periodStart")||"");
+  const end=String(form.get("periodEnd")||"");
+  const note=String(form.get("note")||"").trim();
+  const files=form.getAll("files").filter(f=>f instanceof File&&f.size>0);
+
+  if(!branch||!start||!end)return J({ok:false,error:"Cabang dan periode wajib diisi."},400);
+  if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(start)||!/^\d{4}-(0[1-9]|1[0-2])$/.test(end)||start>end)
+    return J({ok:false,error:"Periode tidak valid."},400);
+  if(note.length>3000)return J({ok:false,error:"Catatan maksimal 3000 karakter."},400);
+  if(!files.length)return J({ok:false,error:"Pilih minimal satu berkas SO Final."},400);
+  if(files.length>10)return J({ok:false,error:"Maksimal 10 berkas sekali unggah."},400);
+  if(files.some(f=>f.size>25*1024*1024))return J({ok:false,error:"Ukuran setiap berkas maksimal 25 MB."},400);
+
+  const branches=await getBranches(e);
+  if(!branches.includes(branch))return J({ok:false,error:"Cabang tidak ditemukan."},400);
+
+  const now=new Date();
+  const year=String(now.getUTCFullYear());
+  const month=String(now.getUTCMonth()+1).padStart(2,"0");
+  const id=crypto.randomUUID();
+  const uploaded=[];
+
+  for(const file of files){
+    const key=`${year}/${month}/${clean(branch)}/SO_Final/${now.toISOString().replace(/[:.]/g,"-")}_${crypto.randomUUID()}_${clean(file.name)}`;
+    const r=await s(e,key,"PUT",file.stream(),{"Content-Type":file.type||"application/octet-stream"});
+    if(!r.ok){
+      return J({ok:false,error:"Gagal mengunggah "+file.name+". Berkas yang sudah berhasil diunggah mungkin masih tersimpan.",uploaded},502);
+    }
+    uploaded.push({key,name:file.name,size:file.size});
+  }
+
+  const recordsKey="__config/so-final-records.json";
+  let records=[];
+  try{
+    const r=await s(e,recordsKey,"GET");
+    if(r.ok){
+      const d=await r.json();
+      if(Array.isArray(d.records))records=d.records;
+    }else if(r.status!==404)return J({ok:false,error:"Berkas terunggah, tetapi catatan lama gagal dibaca.",uploaded},502);
+  }catch{
+    return J({ok:false,error:"Berkas terunggah, tetapi catatan lama gagal dibaca.",uploaded},502);
+  }
+
+  const record={
+    id,branch,periodStart:start,periodEnd:end,note,
+    createdAt:now.toISOString(),files:uploaded
+  };
+  records.unshift(record);
+
+  const saved=await s(e,recordsKey,"PUT",JSON.stringify({records}),{"Content-Type":"application/json"});
+  if(!saved.ok)return J({ok:false,error:"Berkas terunggah, tetapi penyimpanan catatan gagal. Jangan unggah ulang sebelum diperiksa.",uploaded},502);
+
+  return J({ok:true,record,message:"SO Final berhasil disimpan."});
+ }
+
  if(p==="/api/inbox"){if(!await adminSessionValid(req,e))return J({ok:false,error:"Admin belum login."},401);let f=await list(e);f.sort((a,b)=>String(b.modified).localeCompare(String(a.modified)));return J({ok:true,files:f});}
  if(p==="/api/download"){const k=url.searchParams.get("key");if(!k||k.includes(".."))return new Response("Bad key",{status:400});const r=await s(e,k,"GET");const h=new Headers(r.headers);for(const[a,b]of Object.entries(H))h.set(a,b);h.set("Cache-Control","no-store");return new Response(r.body,{status:r.status,headers:h});}
 }catch(err){return J({ok:false,error:err.message},500)}return e.ASSETS.fetch(req);}};
