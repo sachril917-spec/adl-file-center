@@ -22,101 +22,13 @@ export default {async fetch(req,e){if(req.method==="OPTIONS")return new Response
 try{
  if(p==="/api/branches"&&req.method==="GET")return J({branches:await getBranches(e)});
 
- if(p==="/api/daily-motivation"&&req.method==="GET"){
-  const now=new Date();
-  const parts=new Intl.DateTimeFormat("en-CA",{
-   timeZone:"Asia/Jakarta",year:"numeric",month:"2-digit",day:"2-digit"
-  }).formatToParts(now);
-  const part=n=>parts.find(x=>x.type===n).value;
-  const day=part("year")+"-"+part("month")+"-"+part("day");
-  const key="__config/motivation/"+day+".json";
-
-  try{
-   const old=await s(e,key,"GET");
-   if(old.ok){
-    const saved=await old.json();
-    if(saved.title&&saved.message&&url.searchParams.get("new")!=="1")return J({...saved,cached:true});
-   }
-  }catch{}
-
-  if(!e.AI)return J({
-   ok:false,error:"AI belum terhubung. Periksa binding AI di Cloudflare."
-  },503);
-
-  try{
-   const result=await e.AI.run("@cf/meta/llama-3.1-8b-instruct-fp8",{
-    messages:[
-     {
-      role:"system",
-      content:"Kamu adalah penulis motivasi harian untuk karyawan dan pemilik usaha di Indonesia.
-
-TULISAN HARUS MUDAH DIPAHAMI DAN MENYENTUH HATI.
-
-Gunakan bahasa Indonesia sehari-hari yang alami, fasih, jelas, lugas, dan sopan. Bayangkan kamu sedang menasihati teman kerja dengan tulus.
-
-Topik: mencari nafkah halal, kerja keras, kejujuran, amanah, melayani pelanggan, keluarga, rasa syukur, doa, dan nilai Islam.
-
-ATURAN WAJIB:
-
-1. Judul maksimal 7 kata dan langsung menunjukkan pesan utama.
-2. Isi cukup 2–3 kalimat pendek, maksimal 40 kata.
-3. Setiap kalimat harus jelas, masuk akal, dan mudah dipahami sekali baca.
-4. Sampaikan satu pesan utama yang bermanfaat dan bisa diterapkan dalam kehidupan sehari-hari.
-5. Gunakan contoh nyata dari dunia kerja, toko, pelanggan, keluarga, atau mencari nafkah.
-6. Humor boleh digunakan sesekali, tetapi harus alami, sopan, dan benar-benar lucu serta nyambung dengan topik.
-7. Jangan memaksakan lelucon. Jika tidak ada humor yang bagus, tulis motivasi yang menyentuh tanpa humor.
-8. DILARANG menggunakan kata-kata acak, gabungan kata yang tidak masuk akal, perumpamaan membingungkan, atau bahasa asing yang tidak diperlukan.
-9. DILARANG membuat frasa seperti "makan ujian subjektif", "perlombaan doa", atau susunan kata aneh sejenisnya.
-10. Jangan mengarang ayat Al-Qur'an, hadis, kutipan tokoh, atau janji tentang rezeki.
-11. Jangan memakai hashtag, basa-basi, atau kalimat berulang.
-12. Sebelum menjawab, periksa setiap kalimat. Jika ada satu kalimat saja yang terdengar aneh, tidak alami, atau sulit dipahami, tulis ulang seluruh motivasi.
-13. Variasikan tema dan gaya agar tidak terasa berulang setiap hari.
-
-Contoh gaya yang benar:
-Judul: Rezeki Halal, Hati Tenang
-Isi: Bekerjalah dengan jujur meski tidak ada yang mengawasi. Untung besar tidak berarti jika diperoleh dengan merugikan orang lain. Semoga lelah kita menjadi rezeki yang halal dan berkah.
-
-Contoh gaya humor yang benar:
-Judul: Layani Pelanggan dengan Sabar
-Isi: Tetap ramah meski pelanggan bertanya harga berkali-kali lalu tidak jadi membeli. Siapa tahu besok ia kembali membawa pesanan, bukan sekadar pertanyaan.
-
-Jawab hanya dengan JSON valid berbentuk {"title":"Judul motivasi","message":"Isi motivasi"}."
-     },
-     {
-      role:"user",
-      content:"Buat satu motivasi baru untuk tanggal "+day+". Tema kerja mencari nafkah halal, nilai Islami dan humor segar. Jangan menyebut tanggal di dalam tulisan. Hasil harus JSON sesuai format."
-     }
-    ],
-    max_tokens:220,
-    temperature:0.95
-   });
-
-   let textOut=String(result.response||"").trim();
-   textOut=textOut.replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,"");
-   const start=textOut.indexOf("{"),end=textOut.lastIndexOf("}");
-   if(start<0||end<start)throw Error("Jawaban AI bukan JSON");
-   const item=JSON.parse(textOut.slice(start,end+1));
-   if(typeof item.title!=="string"||typeof item.message!=="string")throw Error("Format jawaban AI tidak valid");
-
-   const output={
-    ok:true,date:day,title:item.title.slice(0,100),
-    message:item.message.slice(0,1200),source:"Cloudflare AI"
-   };
-   await s(e,key,"PUT",JSON.stringify(output),{
-    "Content-Type":"application/json"
-   });
-   return J({...output,cached:false});
-  
-}catch(err){
-   console.error("daily-motivation:",err);
-   return J({
+ 
+if(p==="/api/daily-motivation"&&req.method==="GET"){
+  return J({
     ok:false,
-    error:"Motivasi AI gagal",
-    detail:String(err?.message||err).slice(0,300)
-   },502);
-  
-  }
- }
+    error:"Motivasi AI sudah dinonaktifkan. Gunakan motivasi pilihan di halaman ADL CABANG."
+  },410);
+}
 
  if(p==="/api/admin/login"&&req.method==="POST")
 {if(!adminOriginOK(req))return J({ok:false,error:"Origin tidak valid."},403);if(!e.ADMIN_PASSWORD)return J({ok:false,error:"ADMIN_PASSWORD belum tersedia."},500);let data;try{data=await req.json()}catch{return J({ok:false,error:"Data login tidak valid."},400)}if(!await adminPasswordMatches(data.password,e.ADMIN_PASSWORD))return J({ok:false,error:"Kata sandi salah."},401);const exp=String(Math.floor(Date.now()/1000)+ADMIN_SESSION_SECONDS),sig=await adminMac(e.ADMIN_PASSWORD,"adl-admin-v1:"+exp);return new Response(JSON.stringify({ok:true,message:"Login admin berhasil."}),{headers:{...H,"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","Set-Cookie":adminCookie(exp+"."+sig,ADMIN_SESSION_SECONDS)}})}
