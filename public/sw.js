@@ -1,5 +1,5 @@
 
-const CACHE = "adl-pusat-v1";
+const CACHE = "adl-pusat-v2";
 const SHELL = [
   "/pusat/",
   "/manifest.webmanifest"
