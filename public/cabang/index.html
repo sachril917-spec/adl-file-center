@@ -63,56 +63,58 @@ button{display:block;width:100%;margin-top:18px;padding:16px;border:0;border-rad
 <script>
 
 
+
 const dailyItems = [
   {
-    title: "Jujur Itu Lebih Berharga",
-    message: "Bekerjalah dengan jujur, meski tidak ada yang mengawasi. Keuntungan bisa dicari, tetapi kepercayaan pelanggan harus dijaga. Usaha yang baik dibangun dengan kejujuran."
+    title: "Allah Mengetahui Cara Kita Bekerja",
+    message: "Allah berfirman dalam QS. At-Taubah: 105 agar kita bekerja, karena Allah, Rasul-Nya, dan orang-orang beriman akan melihat pekerjaan kita. Renungkan: tetaplah jujur saat menghitung uang, memeriksa stok, dan melayani pelanggan, sekalipun tidak ada yang mengawasi. Pekerjaan yang terlihat kecil pun diketahui Allah. Sumber: QS. At-Taubah: 105."
   },
   {
-    title: "Rezeki Halal, Hati Tenang",
-    message: "Jangan hanya mengejar penghasilan besar. Pastikan cara mendapatkannya tetap halal dan tidak merugikan orang lain. Semoga lelah kita menjadi jalan rezeki yang berkah."
+    title: "Amanah Tidak Boleh Ditukar dengan Untung",
+    message: "Dalam QS. An-Nisa: 58, Allah memerintahkan agar amanah disampaikan kepada yang berhak. Barang toko bukan milik kita untuk diperlakukan sesuka hati. Uang harus dicatat dengan benar, barang dijaga, dan tanggung jawab ditunaikan. Jangan sampai keuntungan sesaat membuat kepercayaan hilang. Sumber: QS. An-Nisa: 58."
   },
   {
-    title: "Pelanggan Adalah Amanah",
-    message: "Layani setiap pelanggan dengan ramah, meski mereka belum tentu membeli. Jangan meremehkan siapa pun. Pelayanan yang baik meninggalkan kesan, bahkan setelah pelanggan pulang."
+    title: "Bangga dengan Nafkah yang Halal",
+    message: "Rasulullah ﷺ menjelaskan bahwa makanan terbaik adalah yang diperoleh dari hasil kerja sendiri, sebagaimana disebutkan dalam Sahih al-Bukhari 2072. Jadi, jangan malu bekerja keras. Tidak masalah jika penghasilan belum besar, selama kita berusaha dengan cara yang baik. Semoga setiap rupiah yang dibawa pulang menjadi nafkah yang berkah. Sumber: Sahih al-Bukhari 2072."
   },
   {
-    title: "Tidak Harus Hebat Sekaligus",
-    message: "Kesuksesan tidak selalu datang dalam sehari. Rapikan pekerjaan, perbaiki kesalahan, dan terus belajar. Langkah kecil yang dilakukan dengan konsisten bisa membawa perubahan besar."
+    title: "Jangan Biarkan Uang Mengalahkan Kejujuran",
+    message: "Untung besar memang menyenangkan, tetapi hati yang tenang jauh lebih berharga. Jangan mengurangi hak pelanggan, menyembunyikan kesalahan, atau memanipulasi catatan demi terlihat baik. Kesalahan yang diakui masih bisa diperbaiki. Kepercayaan yang rusak bisa jauh lebih sulit dikembalikan. Renungan: kejujuran adalah modal yang harus kita jaga setiap hari."
   },
   {
-    title: "Untung Boleh, Curang Jangan",
-    message: "Mencari keuntungan itu wajar, tetapi jangan mengorbankan kejujuran. Lebih baik untung sewajarnya dengan hati tenang daripada untung besar dengan merugikan orang lain."
+    title: "Allah Mencintai Kebaikan yang Dilakukan dengan Benar",
+    message: "Dalam Sahih Muslim 1015, Rasulullah ﷺ mengajarkan bahwa Allah itu Mahabaik dan menerima yang baik. Karena itu, perhatikan bukan hanya berapa banyak yang kita dapatkan, tetapi juga bagaimana cara mendapatkannya. Pilih yang halal, hindari kecurangan, dan jangan merugikan orang lain demi keuntungan. Sumber: Sahih Muslim 1015."
   },
   {
-    title: "Kerja Serius, Tetap Bersyukur",
-    message: "Tidak semua hari berjalan sesuai rencana. Saat penjualan ramai, bersyukurlah. Saat sepi, evaluasi dan tetap berusaha. Jangan menyerah hanya karena hasil hari ini belum sesuai harapan."
+    title: "Pelanggan yang Tidak Membeli Tetap Layak Dihormati",
+    message: "Tidak semua orang yang datang ke toko akan membeli. Ada yang hanya bertanya, membandingkan harga, lalu pergi. Jangan jadikan itu alasan untuk bersikap kasar. Kita tidak tahu siapa yang akan kembali atau siapa yang sedang membutuhkan bantuan. Layani dengan baik karena akhlak tidak seharusnya bergantung pada besarnya transaksi."
   },
   {
-    title: "Amanah Terlihat dari Hal Kecil",
-    message: "Menghitung uang dengan teliti, menjaga barang, dan menepati janji adalah bentuk amanah. Jangan menunggu pekerjaan besar untuk membuktikan bahwa kita bisa dipercaya."
+    title: "Lelahmu Jangan Sampai Menghilangkan Amanah",
+    message: "Saat toko ramai, pekerjaan menumpuk, dan badan lelah, tetaplah berusaha teliti. Jika perlu, berhenti sebentar untuk memeriksa kembali hitungan. Kesalahan kecil bisa menjadi masalah besar jika dibiarkan. Bekerja sungguh-sungguh bukan berarti tidak boleh lelah, tetapi tetap berusaha bertanggung jawab meski sedang lelah."
   },
   {
-    title: "Sabar Juga Perlu Senyum",
-    message: "Ada pelanggan yang banyak bertanya, lalu pulang tanpa membeli. Tidak apa-apa, tetap layani dengan baik. Senyum tidak mengurangi keuntungan, tetapi marah bisa menghilangkan pelanggan."
+    title: "Rezeki Bukan Alasan untuk Merugikan Orang",
+    message: "Dalam QS. Al-Mutaffifin ayat 1–3, Allah memberi peringatan kepada orang yang mengurangi takaran dan timbangan. Pesannya mengingatkan kita agar tidak mengambil hak orang lain. Pastikan jumlah barang, harga, uang kembalian, dan catatan transaksi sesuai. Jangan mencari keuntungan dari kekurangan yang sengaja kita berikan kepada orang lain. Sumber: QS. Al-Mutaffifin: 1–3."
   },
   {
-    title: "Bekerja Juga Bentuk Ikhtiar",
-    message: "Berdoa memberi kita harapan, bekerja adalah bagian dari ikhtiar. Lakukan yang terbaik, jaga kejujuran, dan serahkan hasilnya kepada Allah."
+    title: "Saat Sepi, Jangan Kehilangan Semangat",
+    message: "Ada hari ketika penjualan ramai, ada hari ketika toko terasa sepi. Jangan langsung menganggap usahamu sia-sia. Gunakan waktu untuk merapikan barang, memeriksa stok, belajar, dan memperbaiki pelayanan. Kita bertanggung jawab atas ikhtiar, sementara hasil tidak selalu datang sesuai keinginan. Teruslah berusaha dengan cara yang baik."
   },
   {
-    title: "Jangan Malu Memulai Lagi",
-    message: "Kesalahan bukan akhir dari perjalanan. Akui, perbaiki, lalu lanjutkan dengan cara yang lebih baik. Orang yang mau belajar punya kesempatan untuk terus berkembang."
+    title: "Pekerjaan Kecil Bisa Menjadi Tanggung Jawab Besar",
+    message: "Menyusun barang, membersihkan rak, mencocokkan stok, dan mencatat transaksi mungkin terlihat sederhana. Namun, kelalaian kecil bisa menyulitkan banyak orang. Jangan menunggu jabatan tinggi untuk bekerja dengan penuh tanggung jawab. Kerjakan bagianmu dengan baik, sebab kepercayaan dibangun dari kebiasaan kecil yang dilakukan berulang kali."
   },
   {
-    title: "Bukan Sekadar Mengejar Uang",
-    message: "Bekerja bukan hanya untuk membawa pulang penghasilan, tetapi juga untuk memenuhi tanggung jawab. Semoga nafkah yang kita berikan kepada keluarga berasal dari usaha yang baik dan halal."
+    title: "Bekerja untuk Keluarga, Bekerja dengan Hati",
+    message: "Mungkin ada keluarga yang menunggu nafkah dari hasil kerja kita. Mungkin ada kebutuhan rumah yang harus dipenuhi, meski badan sedang lelah. Ingatlah tujuan baik itu, tetapi jangan menghalalkan segala cara. Berikan yang terbaik melalui usaha yang halal dan jujur. Semoga lelah hari ini menjadi kebaikan bagi keluarga, bukan alasan untuk mengabaikan amanah."
   },
   {
-    title: "Teliti Sekarang, Tenang Kemudian",
-    message: "Periksa barang, hitung uang, dan catat transaksi dengan benar. Sedikit ketelitian bisa mencegah banyak masalah. Jangan sampai salah hitung membuat kepala pusing seharian!"
+    title: "Perbaiki Kesalahan, Jangan Menutupinya",
+    message: "Tidak ada manusia yang selalu benar. Jika salah menghitung, salah mencatat, atau lalai menjaga barang, jangan buru-buru menutupi kesalahan. Akui, laporkan dengan jujur, lalu perbaiki. Kesalahan yang ditangani dengan tanggung jawab bisa menjadi pelajaran. Sebaliknya, kesalahan yang sengaja disembunyikan dapat menambah masalah dan merusak kepercayaan."
   }
 ];
+
 
 let dailyIndex = Math.floor(Date.now() / 86400000) % dailyItems.length;
 
