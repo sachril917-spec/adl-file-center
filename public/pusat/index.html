@@ -351,4 +351,42 @@ $('closePreview').addEventListener('click',()=>{$('previewModal').style.display=
  window.addEventListener('DOMContentLoaded',()=>{try{const saved=localStorage.getItem(SECTION_KEY);if(validSections.includes(saved))document.body.dataset.adlSection=saved}catch(e){}});
 })();
 </script>
+
+<style id="adl-final-layout-tweak">
+/* Login: rapikan logo agar tidak menimpa judul */
+body:has(#loginBox:not(.hidden)) main>section.card:first-child::before{
+  position:static!important; float:none!important; transform:none!important;
+  margin:0 auto 18px!important; width:66px!important;height:66px!important;
+}
+body:has(#loginBox:not(.hidden)) main>section.card:first-child{padding-top:28px!important}
+body:has(#loginBox:not(.hidden)) main>section.card:first-child h1{position:relative!important;z-index:1!important;clear:both!important}
+/* Setelah login: letakkan bar admin di pojok kiri atas dan tombol keluar di kanan */
+body:not(:has(#loginBox:not(.hidden))) #adminBar{
+  display:flex!important; align-items:center!important; justify-content:space-between!important;
+  width:100%!important; margin:0 0 18px!important; padding:10px 0 14px!important;
+  border-bottom:1px solid #e4ebf5!important; border-radius:0!important; background:transparent!important;
+  box-shadow:none!important; color:#23436f!important; order:-1!important;
+}
+#adminBar .logoutBtn{margin-left:auto!important;min-width:94px!important;background:#64748b!important}
+@media(max-width:600px){#adminBar{gap:10px!important;padding-bottom:12px!important}#adminBar .logoutBtn{padding:10px 15px!important}}
+</style>
+<script id="adl-safe-layout-labels">
+(function(){
+  function applyADLLayout(){
+    const adminBar=document.getElementById('adminBar');
+    const heading=document.querySelector('main>section.card:first-child h1');
+    if(adminBar&&heading&&adminBar.parentElement===heading.parentElement&&heading.previousElementSibling!==adminBar){
+      heading.parentElement.insertBefore(adminBar,heading);
+    }
+    document.querySelectorAll('button,a,[role="button"]').forEach(el=>{
+      const t=(el.textContent||'').trim();
+      if(/^(?:▦\s*)?Ringkasan$/.test(t) && !el.dataset.adlHomeLabel){
+        el.textContent='⌂ Beranda / Ringkasan'; el.dataset.adlHomeLabel='1';
+      }
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyADLLayout);else applyADLLayout();
+})();
+</script>
+
 </body></html>
