@@ -218,6 +218,16 @@ html{scroll-behavior:smooth;scroll-padding-top:100px}
 @media(max-width:700px){#adlQuickNav{position:relative;top:auto;display:block;padding:13px;border-radius:17px;margin-bottom:14px}.adlNavBrand{margin-bottom:12px}.adlNavLinks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.adlNavLinks a{padding:10px 8px;text-align:center;font-size:12px;line-height:1.3;min-height:43px}html{scroll-padding-top:12px}#adlDashboard,#adlSOStatus,#soFinalCard,#adlArsip{scroll-margin-top:12px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
+
+<style id="adl-login-layout-hotfix">
+/* Fix: menu navigasi tidak boleh menggantikan layar login admin */
+body:has(#loginBox:not(.hidden)) #adlQuickNav{display:none!important}
+body:has(#loginBox:not(.hidden)) main>section.card#adlDashboard{display:block!important}
+body:has(#loginBox:not(.hidden)) main>section.card#adlDashboard #loginBox{display:block!important}
+body:has(#loginBox:not(.hidden)) main>section.card#adlDashboard h1,
+body:has(#loginBox:not(.hidden)) main>section.card#adlDashboard>.sub{display:block!important}
+</style>
+
 </head><body><main>
 <nav id="adlQuickNav" aria-label="Menu utama Pusat Berkas ADL"><div class="adlNavBrand"><span class="adlBrandMark">ADL</span><span><b>Pusat Berkas</b><small>Administrasi cabang</small></span></div><div class="adlNavLinks"><a href="#adlDashboard">Ringkasan</a><a href="#adlSOStatus">Status SO</a><a href="#soFinalCard">SO Final &amp; Bandingkan</a><a href="#adlArsip">Arsip Berkas</a></div></nav>
 <section class="card" id="adlDashboard"><h1>📥 Pusat Berkas ADL</h1><div class="sub">Daftar berkas dari seluruh cabang. Data diperbarui otomatis setiap 30 detik.</div>
