@@ -46,6 +46,18 @@ button{display:block;width:100%;margin-top:18px;padding:16px;border:0;border-rad
 .form-heading strong{display:block;color:#123a79;font-size:17px}
 .form-heading small{display:block;margin-top:4px;color:#6d7e99;font-size:12px;line-height:1.5}
 @media(max-width:420px){.menu-area{margin:0 17px 18px;padding:13px}.main-menu{min-height:74px;padding:12px}.main-menu strong{font-size:14px}.main-menu small{font-size:11px}.tool-login-info{margin-top:11px}.form-separator{margin:22px 17px 17px}.form-heading{margin:0 17px 8px}}
+
+/* Tampilan sortir tetap di dalam halaman ADL */
+.sorter-view{display:none;margin:18px 24px 0;border:1px solid #cbdcf3;border-radius:16px;overflow:hidden;background:#fff}
+.sorter-view-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:#edf4ff;border-bottom:1px solid #d7e2f1}
+.sorter-view-head strong{color:#123a79;font-size:14px}
+.sorter-back{border:0;border-radius:9px;padding:9px 12px;background:#123a79;color:#fff;font-weight:700;cursor:pointer}
+.sorter-frame{display:block;width:100%;height:calc(100vh - 250px);min-height:560px;border:0;background:#fff}
+main.show-sorter > :not(.brand):not(.menu-area):not(.sorter-view){display:none!important}
+main.show-sorter .sorter-view{display:block}
+main.show-sorter{min-height:calc(100vh - 36px)}
+@media(max-width:420px){.sorter-view{margin:14px 17px 0}.sorter-frame{height:calc(100vh - 270px);min-height:520px}}
+
 </style>
 </head>
 <body>
@@ -69,6 +81,13 @@ button{display:block;width:100%;margin-top:18px;padding:16px;border:0;border-rad
   User: <strong>Sachril</strong><br>
   Password: <strong>321</strong>
  </div>
+</section>
+<section class="sorter-view" id="sorterView" aria-label="Aplikasi Sortir Excel">
+ <div class="sorter-view-head">
+  <strong>Sortir Excel Bulanan — ADL</strong>
+  <button class="sorter-back" id="backToUpload" type="button">← Kembali ke Kirim Berkas</button>
+ </div>
+ <iframe class="sorter-frame" id="sorterFrame" title="Aplikasi Sortir Excel Bulanan" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </section>
 <hr class="form-separator">
 <section id="uploadSection" class="form-heading">
@@ -103,6 +122,23 @@ button{display:block;width:100%;margin-top:18px;padding:16px;border:0;border-rad
 <p class="note">Status diperbarui otomatis setiap 30 detik. Riwayat berkas lama tidak dihapus. Jangan tutup halaman saat pengiriman berlangsung.</p>
 </main>
 <script>
+const sorterLink=document.getElementById('sortirExcelMenu');
+const sorterFrame=document.getElementById('sorterFrame');
+const backToUpload=document.getElementById('backToUpload');
+if(sorterLink){
+ sorterLink.addEventListener('click',function(e){
+  e.preventDefault();
+  if(!sorterFrame.getAttribute('src')) sorterFrame.setAttribute('src','https://sobulananexcelsortir.netlify.app');
+  document.querySelector('main').classList.add('show-sorter');
+  document.getElementById('sorterView').scrollIntoView({behavior:'smooth',block:'start'});
+ });
+}
+if(backToUpload){
+ backToUpload.addEventListener('click',function(){
+  document.querySelector('main').classList.remove('show-sorter');
+  document.getElementById('uploadSection').scrollIntoView({behavior:'smooth',block:'start'});
+ });
+}
 const dailyItems = [
   {title:"Allah Mengetahui Cara Kita Bekerja",message:"Allah berfirman dalam QS. At-Taubah: 105 agar kita bekerja, karena Allah, Rasul-Nya, dan orang-orang beriman akan melihat pekerjaan kita. Renungkan: tetaplah jujur saat menghitung uang, memeriksa stok, dan melayani pelanggan, sekalipun tidak ada yang mengawasi. Pekerjaan yang terlihat kecil pun diketahui Allah. Sumber: QS. At-Taubah: 105."},
   {title:"Amanah Tidak Boleh Ditukar dengan Untung",message:"Dalam QS. An-Nisa: 58, Allah memerintahkan agar amanah disampaikan kepada yang berhak. Barang toko bukan milik kita untuk diperlakukan sesuka hati. Uang harus dicatat dengan benar, barang dijaga, dan tanggung jawab ditunaikan. Jangan sampai keuntungan sesaat membuat kepercayaan hilang. Sumber: QS. An-Nisa: 58."},
