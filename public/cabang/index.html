@@ -25,14 +25,30 @@ button{display:block;width:100%;margin-top:18px;padding:16px;border:0;border-rad
 .daily-content{position:relative;z-index:1;padding:12px 19px 18px}.daily-content h2{margin:0 0 9px;font-size:21px;line-height:1.25;color:#fff;letter-spacing:-.3px}.daily-content p{margin:0;color:#e4efff;font-size:15px;line-height:1.65}.daily-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 18px 17px;position:relative;z-index:1}.daily-date{font-size:12px;color:#c5ddff}.daily-refresh{width:auto;margin:0;padding:10px 13px;border:1px solid #ffffff45;border-radius:12px;background:#ffffff18;color:#fff;font-size:12px;box-shadow:none;white-space:nowrap}.daily-refresh:active{background:#ffffff30}
 @media(max-width:420px){.daily-card{margin:19px 17px 0}.daily-content{padding:11px 16px 16px}.daily-content h2{font-size:19px}.daily-content p{font-size:14px}.daily-top{padding-left:16px}.daily-footer{padding:0 16px 15px}}
 
-
-
-
+/* Menu tambahan: hanya tautan ke aplikasi sortir Excel */
+.tool-menu{margin:0 24px 18px;padding:14px;border:1px solid #d9e7fb;border-radius:17px;background:#f4f8ff}
+.tool-menu a{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:13px;background:linear-gradient(105deg,#123a79,#1769d5);color:#fff;text-decoration:none;font-weight:800;box-shadow:0 6px 16px #1769f522}
+.tool-menu small{display:block;margin-top:4px;color:#d9e9ff;font-weight:500;font-size:12px}
+.tool-menu .arrow{font-size:24px;line-height:1}
+.tool-login-info{margin:10px 2px 0;padding:11px 13px;border:1px dashed #b9cdef;border-radius:12px;background:#fff;color:#294568;font-size:13px;line-height:1.65}
+.tool-login-info strong{color:#123a79}
+@media(max-width:420px){.tool-menu{margin:0 17px 17px}}
 </style>
 </head>
 <body>
 <main>
 <div class="brand"><img src="/icons/adl-cabang-192.png" alt="Logo ADL Cabang"><div><h1>Kirim Berkas <span style="color:#ffd15b">ADL</span></h1><p class="sub">Kirim laporan cabang ke pusat dengan mudah</p></div></div>
+<nav class="tool-menu" aria-label="Menu aplikasi tambahan">
+ <a id="sortirExcelMenu" href="https://sobulananexcelsortir.netlify.app" target="_blank" rel="noopener noreferrer">
+  <span>▦ &nbsp; Sortir Excel Bulanan<small>Buka aplikasi sortir dan pengolahan Excel</small></span>
+  <span class="arrow" aria-hidden="true">›</span>
+ </a>
+ <div class="tool-login-info" role="note">
+  <strong>Informasi Login Aplikasi Sortir</strong><br>
+  User: <strong>Sachril</strong><br>
+  Password: <strong>321</strong>
+ </div>
+</nav>
 <form id="uploadForm">
 <div class="field"><label for="b"><span class="ico">▣</span><span>Cabang<small>Pilih cabang tempat Anda bekerja</small></span></label><select id="b" name="branch" required><option value="">Memuat daftar cabang...</option></select></div>
 <div class="field"><label for="category"><span class="ico">▱</span><span>Kategori laporan<small>Pilih jenis laporan yang akan dikirim</small></span></label><select id="category" required>
@@ -61,93 +77,30 @@ button{display:block;width:100%;margin-top:18px;padding:16px;border:0;border-rad
 <p class="note">Status diperbarui otomatis setiap 30 detik. Riwayat berkas lama tidak dihapus. Jangan tutup halaman saat pengiriman berlangsung.</p>
 </main>
 <script>
-
-
-
 const dailyItems = [
-  {
-    title: "Allah Mengetahui Cara Kita Bekerja",
-    message: "Allah berfirman dalam QS. At-Taubah: 105 agar kita bekerja, karena Allah, Rasul-Nya, dan orang-orang beriman akan melihat pekerjaan kita. Renungkan: tetaplah jujur saat menghitung uang, memeriksa stok, dan melayani pelanggan, sekalipun tidak ada yang mengawasi. Pekerjaan yang terlihat kecil pun diketahui Allah. Sumber: QS. At-Taubah: 105."
-  },
-  {
-    title: "Amanah Tidak Boleh Ditukar dengan Untung",
-    message: "Dalam QS. An-Nisa: 58, Allah memerintahkan agar amanah disampaikan kepada yang berhak. Barang toko bukan milik kita untuk diperlakukan sesuka hati. Uang harus dicatat dengan benar, barang dijaga, dan tanggung jawab ditunaikan. Jangan sampai keuntungan sesaat membuat kepercayaan hilang. Sumber: QS. An-Nisa: 58."
-  },
-  {
-    title: "Bangga dengan Nafkah yang Halal",
-    message: "Rasulullah ﷺ menjelaskan bahwa makanan terbaik adalah yang diperoleh dari hasil kerja sendiri, sebagaimana disebutkan dalam Sahih al-Bukhari 2072. Jadi, jangan malu bekerja keras. Tidak masalah jika penghasilan belum besar, selama kita berusaha dengan cara yang baik. Semoga setiap rupiah yang dibawa pulang menjadi nafkah yang berkah. Sumber: Sahih al-Bukhari 2072."
-  },
-  {
-    title: "Jangan Biarkan Uang Mengalahkan Kejujuran",
-    message: "Untung besar memang menyenangkan, tetapi hati yang tenang jauh lebih berharga. Jangan mengurangi hak pelanggan, menyembunyikan kesalahan, atau memanipulasi catatan demi terlihat baik. Kesalahan yang diakui masih bisa diperbaiki. Kepercayaan yang rusak bisa jauh lebih sulit dikembalikan. Renungan: kejujuran adalah modal yang harus kita jaga setiap hari."
-  },
-  {
-    title: "Allah Mencintai Kebaikan yang Dilakukan dengan Benar",
-    message: "Dalam Sahih Muslim 1015, Rasulullah ﷺ mengajarkan bahwa Allah itu Mahabaik dan menerima yang baik. Karena itu, perhatikan bukan hanya berapa banyak yang kita dapatkan, tetapi juga bagaimana cara mendapatkannya. Pilih yang halal, hindari kecurangan, dan jangan merugikan orang lain demi keuntungan. Sumber: Sahih Muslim 1015."
-  },
-  {
-    title: "Pelanggan yang Tidak Membeli Tetap Layak Dihormati",
-    message: "Tidak semua orang yang datang ke toko akan membeli. Ada yang hanya bertanya, membandingkan harga, lalu pergi. Jangan jadikan itu alasan untuk bersikap kasar. Kita tidak tahu siapa yang akan kembali atau siapa yang sedang membutuhkan bantuan. Layani dengan baik karena akhlak tidak seharusnya bergantung pada besarnya transaksi."
-  },
-  {
-    title: "Lelahmu Jangan Sampai Menghilangkan Amanah",
-    message: "Saat toko ramai, pekerjaan menumpuk, dan badan lelah, tetaplah berusaha teliti. Jika perlu, berhenti sebentar untuk memeriksa kembali hitungan. Kesalahan kecil bisa menjadi masalah besar jika dibiarkan. Bekerja sungguh-sungguh bukan berarti tidak boleh lelah, tetapi tetap berusaha bertanggung jawab meski sedang lelah."
-  },
-  {
-    title: "Rezeki Bukan Alasan untuk Merugikan Orang",
-    message: "Dalam QS. Al-Mutaffifin ayat 1–3, Allah memberi peringatan kepada orang yang mengurangi takaran dan timbangan. Pesannya mengingatkan kita agar tidak mengambil hak orang lain. Pastikan jumlah barang, harga, uang kembalian, dan catatan transaksi sesuai. Jangan mencari keuntungan dari kekurangan yang sengaja kita berikan kepada orang lain. Sumber: QS. Al-Mutaffifin: 1–3."
-  },
-  {
-    title: "Saat Sepi, Jangan Kehilangan Semangat",
-    message: "Ada hari ketika penjualan ramai, ada hari ketika toko terasa sepi. Jangan langsung menganggap usahamu sia-sia. Gunakan waktu untuk merapikan barang, memeriksa stok, belajar, dan memperbaiki pelayanan. Kita bertanggung jawab atas ikhtiar, sementara hasil tidak selalu datang sesuai keinginan. Teruslah berusaha dengan cara yang baik."
-  },
-  {
-    title: "Pekerjaan Kecil Bisa Menjadi Tanggung Jawab Besar",
-    message: "Menyusun barang, membersihkan rak, mencocokkan stok, dan mencatat transaksi mungkin terlihat sederhana. Namun, kelalaian kecil bisa menyulitkan banyak orang. Jangan menunggu jabatan tinggi untuk bekerja dengan penuh tanggung jawab. Kerjakan bagianmu dengan baik, sebab kepercayaan dibangun dari kebiasaan kecil yang dilakukan berulang kali."
-  },
-  {
-    title: "Bekerja untuk Keluarga, Bekerja dengan Hati",
-    message: "Mungkin ada keluarga yang menunggu nafkah dari hasil kerja kita. Mungkin ada kebutuhan rumah yang harus dipenuhi, meski badan sedang lelah. Ingatlah tujuan baik itu, tetapi jangan menghalalkan segala cara. Berikan yang terbaik melalui usaha yang halal dan jujur. Semoga lelah hari ini menjadi kebaikan bagi keluarga, bukan alasan untuk mengabaikan amanah."
-  },
-  {
-    title: "Perbaiki Kesalahan, Jangan Menutupinya",
-    message: "Tidak ada manusia yang selalu benar. Jika salah menghitung, salah mencatat, atau lalai menjaga barang, jangan buru-buru menutupi kesalahan. Akui, laporkan dengan jujur, lalu perbaiki. Kesalahan yang ditangani dengan tanggung jawab bisa menjadi pelajaran. Sebaliknya, kesalahan yang sengaja disembunyikan dapat menambah masalah dan merusak kepercayaan."
-  }
+  {title:"Allah Mengetahui Cara Kita Bekerja",message:"Allah berfirman dalam QS. At-Taubah: 105 agar kita bekerja, karena Allah, Rasul-Nya, dan orang-orang beriman akan melihat pekerjaan kita. Renungkan: tetaplah jujur saat menghitung uang, memeriksa stok, dan melayani pelanggan, sekalipun tidak ada yang mengawasi. Pekerjaan yang terlihat kecil pun diketahui Allah. Sumber: QS. At-Taubah: 105."},
+  {title:"Amanah Tidak Boleh Ditukar dengan Untung",message:"Dalam QS. An-Nisa: 58, Allah memerintahkan agar amanah disampaikan kepada yang berhak. Barang toko bukan milik kita untuk diperlakukan sesuka hati. Uang harus dicatat dengan benar, barang dijaga, dan tanggung jawab ditunaikan. Jangan sampai keuntungan sesaat membuat kepercayaan hilang. Sumber: QS. An-Nisa: 58."},
+  {title:"Bangga dengan Nafkah yang Halal",message:"Rasulullah ﷺ menjelaskan bahwa makanan terbaik adalah yang diperoleh dari hasil kerja sendiri, sebagaimana disebutkan dalam Sahih al-Bukhari 2072. Jadi, jangan malu bekerja keras. Tidak masalah jika penghasilan belum besar, selama kita berusaha dengan cara yang baik. Semoga setiap rupiah yang dibawa pulang menjadi nafkah yang berkah. Sumber: Sahih al-Bukhari 2072."},
+  {title:"Jangan Biarkan Uang Mengalahkan Kejujuran",message:"Untung besar memang menyenangkan, tetapi hati yang tenang jauh lebih berharga. Jangan mengurangi hak pelanggan, menyembunyikan kesalahan, atau memanipulasi catatan demi terlihat baik. Kesalahan yang diakui masih bisa diperbaiki. Kepercayaan yang rusak bisa jauh lebih sulit dikembalikan. Renungan: kejujuran adalah modal yang harus kita jaga setiap hari."},
+  {title:"Allah Mencintai Kebaikan yang Dilakukan dengan Benar",message:"Dalam Sahih Muslim 1015, Rasulullah ﷺ mengajarkan bahwa Allah itu Mahabaik dan menerima yang baik. Karena itu, perhatikan bukan hanya berapa banyak yang kita dapatkan, tetapi juga bagaimana cara mendapatkannya. Pilih yang halal, hindari kecurangan, dan jangan merugikan orang lain demi keuntungan. Sumber: Sahih Muslim 1015."},
+  {title:"Pelanggan yang Tidak Membeli Tetap Layak Dihormati",message:"Tidak semua orang yang datang ke toko akan membeli. Ada yang hanya bertanya, membandingkan harga, lalu pergi. Jangan jadikan itu alasan untuk bersikap kasar. Kita tidak tahu siapa yang akan kembali atau siapa yang sedang membutuhkan bantuan. Layani dengan baik karena akhlak tidak seharusnya bergantung pada besarnya transaksi."},
+  {title:"Lelahmu Jangan Sampai Menghilangkan Amanah",message:"Saat toko ramai, pekerjaan menumpuk, dan badan lelah, tetaplah berusaha teliti. Jika perlu, berhenti sebentar untuk memeriksa kembali hitungan. Kesalahan kecil bisa menjadi masalah besar jika dibiarkan. Bekerja sungguh-sungguh bukan berarti tidak boleh lelah, tetapi tetap berusaha bertanggung jawab meski sedang lelah."},
+  {title:"Rezeki Bukan Alasan untuk Merugikan Orang",message:"Dalam QS. Al-Mutaffifin ayat 1–3, Allah memberi peringatan kepada orang yang mengurangi takaran dan timbangan. Pesannya mengingatkan kita agar tidak mengambil hak orang lain. Pastikan jumlah barang, harga, uang kembalian, dan catatan transaksi sesuai. Jangan mencari keuntungan dari kekurangan yang sengaja kita berikan kepada orang lain. Sumber: QS. Al-Mutaffifin: 1–3."},
+  {title:"Saat Sepi, Jangan Kehilangan Semangat",message:"Ada hari ketika penjualan ramai, ada hari ketika toko terasa sepi. Jangan langsung menganggap usahamu sia-sia. Gunakan waktu untuk merapikan barang, memeriksa stok, belajar, dan memperbaiki pelayanan. Kita bertanggung jawab atas ikhtiar, sementara hasil tidak selalu datang sesuai keinginan. Teruslah berusaha dengan cara yang baik."},
+  {title:"Pekerjaan Kecil Bisa Menjadi Tanggung Jawab Besar",message:"Menyusun barang, membersihkan rak, mencocokkan stok, dan mencatat transaksi mungkin terlihat sederhana. Namun, kelalaian kecil bisa menyulitkan banyak orang. Jangan menunggu jabatan tinggi untuk bekerja dengan penuh tanggung jawab. Kerjakan bagianmu dengan baik, sebab kepercayaan dibangun dari kebiasaan kecil yang dilakukan berulang kali."},
+  {title:"Bekerja untuk Keluarga, Bekerja dengan Hati",message:"Mungkin ada keluarga yang menunggu nafkah dari hasil kerja kita. Mungkin ada kebutuhan rumah yang harus dipenuhi, meski badan sedang lelah. Ingatlah tujuan baik itu, tetapi jangan menghalalkan segala cara. Berikan yang terbaik melalui usaha yang halal dan jujur. Semoga lelah hari ini menjadi kebaikan bagi keluarga, bukan alasan untuk mengabaikan amanah."},
+  {title:"Perbaiki Kesalahan, Jangan Menutupinya",message:"Tidak ada manusia yang selalu benar. Jika salah menghitung, salah mencatat, atau lalai menjaga barang, jangan buru-buru menutupi kesalahan. Akui, laporkan dengan jujur, lalu perbaiki. Kesalahan yang ditangani dengan tanggung jawab bisa menjadi pelajaran. Sebaliknya, kesalahan yang sengaja disembunyikan dapat menambah masalah dan merusak kepercayaan."}
 ];
-
-
 let dailyIndex = Math.floor(Date.now() / 86400000) % dailyItems.length;
-
 function renderDaily(forceNew = false) {
-  if (forceNew) {
-    let nextIndex;
-    do {
-      nextIndex = Math.floor(Math.random() * dailyItems.length);
-    } while (nextIndex === dailyIndex && dailyItems.length > 1);
-    dailyIndex = nextIndex;
-  }
-
+  if (forceNew) { let nextIndex; do { nextIndex = Math.floor(Math.random() * dailyItems.length); } while (nextIndex === dailyIndex && dailyItems.length > 1); dailyIndex = nextIndex; }
   const item = dailyItems[dailyIndex];
   document.getElementById("dailyTitle").textContent = item.title;
   document.getElementById("dailyMessage").textContent = item.message;
-  document.getElementById("dailyDate").textContent =
-    "Motivasi pilihan • " +
-    new Intl.DateTimeFormat("id-ID", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      timeZone: "Asia/Jakarta"
-    }).format(new Date());
+  document.getElementById("dailyDate").textContent = "Motivasi pilihan • " + new Intl.DateTimeFormat("id-ID", {weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"Asia/Jakarta"}).format(new Date());
 }
-
-document.getElementById("dailyRefresh").addEventListener(
-  "click",
-  () => renderDaily(true)
-);
-
+document.getElementById("dailyRefresh").addEventListener("click", () => renderDaily(true));
 renderDaily();
-
 
 const branchSelect=document.getElementById('b'),form=document.getElementById('uploadForm'),message=document.getElementById('msg'),sendBtn=document.getElementById('sendBtn');
 const category=document.getElementById('category'),allBranchStatus=document.getElementById('allBranchStatus'),periodLabel=document.getElementById('periodLabel');
@@ -167,18 +120,8 @@ const r=await fetch('/api/so-status?year='+year+'&month='+month,{cache:'no-store
 if(!r.ok)throw Error('HTTP '+r.status);
 const x=await r.json();
 if(!x.ok)throw Error(x.error||'Data tidak tersedia');
-const normBranch=v=>String(v||'')
- .replace(/_/g,' ')
- .replace(/\s+/g,' ')
- .trim()
- .toLowerCase();
-
-const sent=new Set(
- (x.branches||x.cabang||[])
- .filter(b=>b.sent===true||b.dikirim===true||b.dikirim==='benar')
- .map(b=>normBranch(b.branch||b.cabang))
-);
-
+const normBranch=v=>String(v||'').replace(/_/g,' ').replace(/\s+/g,' ').trim().toLowerCase();
+const sent=new Set((x.branches||x.cabang||[]).filter(b=>b.sent===true||b.dikirim===true||b.dikirim==='benar').map(b=>normBranch(b.branch||b.cabang)));
 const done=branchNames.filter(n=>sent.has(normBranch(n))).length;
   document.getElementById('totalBranches').textContent=branchNames.length;document.getElementById('sentBranches').textContent=done;document.getElementById('waitingBranches').textContent=branchNames.length-done;
   periodLabel.className='status '+(done===branchNames.length?'ok':'wait');
