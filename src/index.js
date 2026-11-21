@@ -94,6 +94,7 @@ const branch = selectedBranch || "Belum memilih cabang";
   const old = devices.find(x => x.deviceId === deviceId) ||
     devices.find(x => x.userAgent && fingerprint(x) === currentFingerprint);
 
+  const cf = req.cf || {};
   const item = {
     deviceId,
     branch,
@@ -102,6 +103,13 @@ const branch = selectedBranch || "Belum memilih cabang";
     os,
     browser,
     userAgent,
+    // Wilayah perkiraan dari jaringan Cloudflare; alamat IP tidak disimpan.
+    ipLocation: {
+      city: monitorText(cf.city, 100),
+      region: monitorText(cf.region, 100),
+      country: monitorText(cf.country, 80),
+      timezone: monitorText(cf.timezone, 80)
+    },
     firstSeen: old?.firstSeen || now,
     lastSeen: now
   };
