@@ -95,30 +95,6 @@ const branch = selectedBranch || "Belum memilih cabang";
     devices.find(x => x.userAgent && fingerprint(x) === currentFingerprint);
 
   const cf = req.cf || {};
-  // Best-effort IP geolocation without requesting device GPS permission.
-  // This estimates the network exit point, not the handset's physical position.
-  const clientIp = req.headers.get("cf-connecting-ip") || "";
-  const lookups = clientIp ? await Promise.allSettled([
-    fetch("https://ipwho.is/" + encodeURIComponent(clientIp), { cf: { cacheTtl: 300 } }).then(r => r.ok ? r.json() : null),
-    fetch("https://ipapi.co/" + encodeURIComponent(clientIp) + "/json/", { cf: { cacheTtl: 300 } }).then(r => r.ok ? r.json() : null)
-  ]) : [];
-  const ipwho = lookups[0]?.status === "fulfilled" ? lookups[0].value : null;
-  const ipapi = lookups[1]?.status === "fulfilled" ? lookups[1].value : null;
-  const candidates = [
-    ipwho && ipwho.success !== false ? { city: ipwho.city, region: ipwho.region, country: ipwho.country, source: "IPWho" } : null,
-    ipapi && !ipapi.error ? { city: ipapi.city, region: ipapi.region, country: ipapi.country_name, source: "IPAPI" } : null,
-    cf.city || cf.region || cf.country ? { city: cf.city, region: cf.region, country: cf.country, source: "Cloudflare" } : null
-  ].filter(x => x && (x.city || x.region || x.country));
-  const norm = x => [x.city, x.region, x.country].map(v => String(v || "").trim().toLowerCase()).join("|");
-  const counts = new Map();
-  for (const c of candidates) {
-    const key = norm(c);
-    if (key.replace(/\\|/g, "")) counts.set(key, (counts.get(key) || 0) + 1);
-  }
-  const ranked = [...counts.entries()].sort((a,b) => b[1] - a[1]);
-  const winnerKey = ranked[0]?.[0] || "";
-  const winner = candidates.find(c => norm(c) === winnerKey) || null;
-  const agreement = ranked[0]?.[1] || 0;
   const item = {
     deviceId,
     branch,
@@ -127,16 +103,22 @@ const branch = selectedBranch || "Belum memilih cabang";
     os,
     browser,
     userAgent,
-    // Lokasi perkiraan berdasarkan konsensus beberapa database IP; bukan GPS.
+    // Data geolokasi jaringan dari Cloudflare. Ini perkiraan berbasis IP,
+    // bukan koordinat GPS perangkat.
     ipLocation: {
-      city: monitorText(winner?.city || cf.city, 100),
-      region: monitorText(winner?.region || cf.region, 100),
-      country: monitorText(winner?.country || cf.country, 80),
+      city: monitorText(cf.city, 100),
+      region: monitorText(cf.region, 100),
+      regionCode: monitorText(cf.regionCode, 20),
+      country: monitorText(cf.country, 80),
+      postalCode: monitorText(cf.postalCode, 20),
+      latitude: monitorText(cf.latitude, 30),
+      longitude: monitorText(cf.longitude, 30),
       timezone: monitorText(cf.timezone, 80),
-      sources: candidates.map(c => c.source),
-      agreement,
-      sourceCount: candidates.length,
-      confidence: agreement >= 2 ? "Kesepakatan beberapa sumber" : "Rendah — hanya perkiraan IP"
+      asn: Number.isFinite(Number(cf.asn)) ? Number(cf.asn) : null,
+      asOrganization: monitorText(cf.asOrganization, 120),
+      colo: monitorText(cf.colo, 10),
+      source: "Cloudflare IP geolocation",
+      accuracyType: "Perkiraan jaringan, bukan GPS"
     },
     firstSeen: old?.firstSeen || now,
     lastSeen: now
