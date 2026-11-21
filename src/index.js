@@ -1,7 +1,7 @@
 import { AwsClient } from "aws4fetch";
 const DEFAULT_BRANCHES=["ADL Talang","ADL Karanganyar","ADL Brebes","ADL Tanglog","ADL Bumiayu","ADL Gumayun","Rizky Pustaka","ADL Kaligelang","ADL Kaliwungu","ADL Weleri","ADL Kedungwuni","ADL Bobotsari","ADL Ketanggungan","ADL Debong","ADL Mejasem","ADL Ajibarang","ADL Bandar","ADL Buaran"];
 const BRANCH_CONFIG="__config/branches.json";
-const H={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET,POST,OPTIONS","Access-Control-Allow-Headers":"Content-Type"};
+const H={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET,POST,OPTIONS","Access-Control-Allow-Headers":"Content-Type, X-Monitor-Token"};
 const J=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{...H,"Content-Type":"application/json;charset=utf-8","Cache-Control":"no-store"}});
 const clean=x=>String(x||"").trim().replace(/[^\p{L}\p{N}._ -]+/gu,"_").replace(/\s+/g,"_");
 function c(e){return new AwsClient({accessKeyId:e.B2_KEY_ID,secretAccessKey:e.B2_APPLICATION_KEY,service:"s3",region:e.B2_REGION});}
