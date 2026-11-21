@@ -18,6 +18,100 @@ async function saveBranches(e,branches){return await s(e,BRANCH_CONFIG,"PUT",JSO
 async function upload(req,e){const f=await req.formData(),file=f.get("file"),branch=f.get("branch"),type=f.get("reportType")||"Berkas";if(!(file instanceof File))return J({ok:false,error:"File belum dipilih."},400);const branches=await getBranches(e);if(!branches.includes(branch))return J({ok:false,error:"Cabang tidak valid atau sudah dihapus. Muat ulang aplikasi Cabang."},400);const d=new Date(),y=d.getUTCFullYear(),m=String(d.getUTCMonth()+1).padStart(2,"0");const k=`${y}/${m}/${clean(branch)}/${clean(type)}/${d.toISOString().replace(/[:.]/g,"-")}_${crypto.randomUUID()}_${clean(file.name)}`;const r=await s(e,k,"PUT",file.stream(),{"Content-Type":file.type||"application/octet-stream"});if(!r.ok)return J({ok:false,error:"Upload ke Backblaze gagal.",status:r.status},502);return J({ok:true,key:k,receivedAt:d.toISOString(),message:"Upload berhasil."});}
 async function list(e){const r=await s(e,"","GET");if(!r.ok)throw Error("Gagal membaca Backblaze");const x=await r.text(),a=[...x.matchAll(/<Contents>([\s\S]*?)<\/Contents>/g)];return a.map(z=>{let q=z[1],t=n=>{let m=q.match(new RegExp(`<${n}>([\\s\\S]*?)</${n}>`));return m?m[1]:""};let k=t("Key"),p=k.split("/");return{key:k,size:+t("Size")||0,modified:t("LastModified"),branch:(p[2]||"").replace(/_/g," "),reportType:(p[3]||"").replace(/_/g," "),name:p.slice(4).join("/")}}).filter(x=>/^\d{4}\/\d{2}\//.test(x.key));}
 function validFileKey(k){return typeof k==="string"&&/^\d{4}\/\d{2}\/[\p{L}\p{N}._ -]+\/[\p{L}\p{N}._ -]+\/.+$/u.test(k)&&!k.includes("..")&&!k.startsWith("__config/");}
+
+const DEVICE_MONITOR_KEY = "__config/device-monitor.json";
+
+function monitorText(v, max = 180) {
+  return String(v ?? "").trim().slice(0, max);
+}
+
+async function monitorRead(e) {
+  const r = await s(e, DEVICE_MONITOR_KEY, "GET");
+  if (r.status === 404) return [];
+  if (!r.ok) throw Error("Gagal membaca data monitoring.");
+  const d = await r.json();
+  return Array.isArray(d.devices) ? d.devices : [];
+}
+
+async function monitorWrite(e, devices) {
+  const r = await s(
+    e, DEVICE_MONITOR_KEY, "PUT",
+    JSON.stringify({ devices, updatedAt: new Date().toISOString() }),
+    { "Content-Type": "application/json" }
+  );
+  if (!r.ok) throw Error("Gagal menyimpan data monitoring.");
+}
+
+function monitorTokenOK(req, e) {
+  const a = String(e.MONITOR_TOKEN || "");
+  const b = String(req.headers.get("X-Monitor-Token") || "");
+  if (!a || !b || a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++)
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+async function monitorHeartbeat(req, e) {
+  let d;
+  try { d = await req.json(); }
+  catch { return J({ ok: false, error: "Data perangkat tidak valid." }, 400); }
+
+  const deviceId = monitorText(d.deviceId, 100);
+  const branch = monitorText(d.branch, 100);
+
+  if (!deviceId || !branch || d.page !== "cabang")
+    return J({ ok: false, error: "Identitas perangkat tidak valid." }, 400);
+
+  if (!(await getBranches(e)).includes(branch))
+    return J({ ok: false, error: "Cabang tidak terdaftar." }, 400);
+
+  const now = new Date().toISOString();
+  const devices = await monitorRead(e);
+  const old = devices.find(x => x.deviceId === deviceId);
+
+  const item = {
+    deviceId,
+    branch,
+    brand: monitorText(d.brand, 80) || "Tidak diketahui",
+    model: monitorText(d.model, 120) || "Perangkat tidak teridentifikasi",
+    os: monitorText(d.os, 80) || "Tidak diketahui",
+    browser: monitorText(d.browser, 80) || "Tidak diketahui",
+    userAgent: monitorText(d.userAgent, 350),
+    firstSeen: old?.firstSeen || now,
+    lastSeen: now
+  };
+
+  const next = devices.filter(x =>
+    x.deviceId !== deviceId &&
+    Date.now() - Date.parse(x.lastSeen || 0) < 90 * 86400000
+  );
+
+  next.push(item);
+  if (next.length > 500) next.splice(0, next.length - 500);
+
+  await monitorWrite(e, next);
+  return J({ ok: true, deviceId, lastSeen: now });
+}
+
+async function monitorDevices(req, e) {
+  if (!monitorTokenOK(req, e))
+    return J({ ok: false, error: "Token monitoring tidak valid." }, 403);
+
+  const devices = await monitorRead(e);
+  devices.sort((a, b) =>
+    String(b.lastSeen || "").localeCompare(String(a.lastSeen || ""))
+  );
+
+  return J({ ok: true, devices });
+}
+
+if (p === "/api/monitor/heartbeat" && req.method === "POST")
+  return await monitorHeartbeat(req, e);
+
+if (p === "/api/monitor/devices" && req.method === "GET")
+  return await monitorDevices(req, e);
+
 export default {async fetch(req,e){if(req.method==="OPTIONS")return new Response(null,{status:204,headers:H});const url=new URL(req.url),p=url.pathname;if(p==="/api/health")return J({ok:true,storage:"Backblaze B2"});
 try{
  if(p==="/api/branches"&&req.method==="GET")return J({branches:await getBranches(e)});
