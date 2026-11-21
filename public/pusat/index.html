@@ -519,7 +519,12 @@ async function loadDeviceMonitoring(){
    '</span><div class="meta">'+
    esc(x.brand||'')+' '+esc(x.model||'Perangkat tidak diketahui')+
    '<br>'+esc(x.os||'')+' • '+esc(x.browser||'')+
-   '<br>Lokasi jaringan: '+esc([x.ipLocation?.city,x.ipLocation?.region,x.ipLocation?.country].filter(Boolean).join(', ')||'Tidak tersedia')+
+   '<br>Lokasi jaringan (perkiraan IP): '+esc([x.ipLocation?.city,x.ipLocation?.region,x.ipLocation?.postalCode,x.ipLocation?.country].filter(Boolean).join(', ')||'Tidak tersedia')+
+   (Number.isFinite(Number(x.ipLocation?.latitude))&&Number.isFinite(Number(x.ipLocation?.longitude))&&x.ipLocation?.latitude!==''&&x.ipLocation?.longitude!==''?
+    '<br>Koordinat perkiraan: '+esc(x.ipLocation.latitude+', '+x.ipLocation.longitude)+' · <a href="https://www.google.com/maps?q='+encodeURIComponent(x.ipLocation.latitude+','+x.ipLocation.longitude)+'" target="_blank" rel="noopener">Lihat peta</a>':'')+
+   (x.ipLocation?.organization?'<br>Jaringan: '+esc(x.ipLocation.organization):'')+
+   (x.ipLocation?.timezone?'<br>Zona waktu: '+esc(x.ipLocation.timezone):'')+
+   '<br><small>Catatan: lokasi IP adalah perkiraan jaringan, bukan posisi GPS HP.</small>'+
    '<br>Pertama terlihat: '+dt(x.firstSeen)+
    '<br>Terakhir aktif: '+dt(x.lastSeen)+
    '</div></div>';
