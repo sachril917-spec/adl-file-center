@@ -16,7 +16,7 @@ async function adminMac(secret,message){const key=await crypto.subtle.importKey(
 async function deriveAdminPassword(password,salt,iterations=ADMIN_PBKDF2_ITERATIONS){const material=await crypto.subtle.importKey("raw",new TextEncoder().encode(password),"PBKDF2",false,["deriveBits"]);return bytesToHex(await crypto.subtle.deriveBits({name:"PBKDF2",salt,iterations,hash:"SHA-256"},material,256));}
 async function getAdminCredential(env){const r=await s(env,ADMIN_PASSWORD_KEY,"GET");if(r.ok){const d=await r.json();if(d&&d.algorithm==="PBKDF2-SHA256"&&typeof d.salt==="string"&&typeof d.hash==="string"&&Number.isInteger(d.iterations))return {mode:"pbkdf2",...d};throw Error("Data kata sandi admin di Backblaze tidak valid.");}if(r.status===404&&env.ADMIN_PASSWORD)return {mode:"legacy",password:env.ADMIN_PASSWORD};if(r.status===404)return null;throw Error("Gagal membaca kata sandi admin dari Backblaze.");}
 async function verifyAdminPassword(input,credential){if(typeof input!=="string"||!credential||input.length>1024)return false;if(credential.mode==="legacy")return input===credential.password;const salt=hexToBytes(credential.salt);if(!salt||!Number.isInteger(credential.iterations)||credential.iterations<100000||credential.iterations>1000000)return false;const actual=hexToBytes(await deriveAdminPassword(input,salt,credential.iterations)),expected=hexToBytes(credential.hash);if(!actual||!expected||actual.length!==expected.length)return false;let diff=0;for(let i=0;i<actual.length;i++)diff|=actual[i]^expected[i];return diff===0;}
-async function adminSessionValid(req,env){const cookies=req.headers.get("Cookie")||"",item=cookies.split(";").map(x=>x.trim()).find(x=>x.startsWith(ADMIN_COOKIE+"="));if(!item)return false;const parts=item.slice(ADMIN_COOKIE.length+1).split(".");if(parts.length!==2||!/^\d+$/.test(parts[0])||! /^[a-f0-9]{64}$/.test(parts[1]))return false;const exp=Number(parts[0]),now=Math.floor(Date.now()/1000);if(!Number.isSafeInteger(exp)||exp<=now||exp>now+ADMIN_SESSION_SECONDS)return false;const credential=await getAdminCredential(env);if(!credential)return false;const secret=credential.mode==="pbkdf2"?"adl-pbkdf2:"+credential.hash:credential.password;return parts[1]===await adminMac(secret,"adl-admin-v1:"+parts[0]);}
+async function adminSessionRole(req,env){const cookies=req.headers.get("Cookie")||"",item=cookies.split(";").map(x=>x.trim()).find(x=>x.startsWith(ADMIN_COOKIE+"="));if(!item)return null;const parts=item.slice(ADMIN_COOKIE.length+1).split(".");if(parts.length!==3||!/^\\d+$/.test(parts[0])||!["main","limited"].includes(parts[1])||!/^[a-f0-9]{64}$/.test(parts[2]))return null;const exp=Number(parts[0]),now=Math.floor(Date.now()/1000);if(!Number.isSafeInteger(exp)||exp<=now||exp>now+ADMIN_SESSION_SECONDS)return null;const credential=await getAdminCredential(env);if(!credential)return null;const secret=credential.mode==="pbkdf2"?"adl-pbkdf2:"+credential.hash:credential.password;const expected=await adminMac(secret,"adl-admin-v2:"+parts[0]+":"+parts[1]);return parts[2]===expected?parts[1]:null;}async function adminSessionValid(req,env){return !!(await adminSessionRole(req,env));}
 function adminOriginOK(req){return req.headers.get("Origin")===new URL(req.url).origin;}
 function adminCookie(value,maxAge){return ADMIN_COOKIE+"="+value+"; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age="+maxAge;}
 async function getBranches(e){try{const r=await s(e,BRANCH_CONFIG,"GET");if(r.ok){const x=await r.json();if(Array.isArray(x.branches)&&x.branches.every(v=>typeof v==="string"))return x.branches;}}catch{}return [...DEFAULT_BRANCHES];}
@@ -103,22 +103,12 @@ const branch = selectedBranch || "Belum memilih cabang";
     os,
     browser,
     userAgent,
-    // Data geolokasi jaringan dari Cloudflare. Ini perkiraan berbasis IP,
-    // bukan koordinat GPS perangkat.
+    // Wilayah perkiraan dari jaringan Cloudflare; alamat IP tidak disimpan.
     ipLocation: {
       city: monitorText(cf.city, 100),
       region: monitorText(cf.region, 100),
-      regionCode: monitorText(cf.regionCode, 20),
       country: monitorText(cf.country, 80),
-      postalCode: monitorText(cf.postalCode, 20),
-      latitude: monitorText(cf.latitude, 30),
-      longitude: monitorText(cf.longitude, 30),
-      timezone: monitorText(cf.timezone, 80),
-      asn: Number.isFinite(Number(cf.asn)) ? Number(cf.asn) : null,
-      asOrganization: monitorText(cf.asOrganization, 120),
-      colo: monitorText(cf.colo, 10),
-      source: "Cloudflare IP geolocation",
-      accuracyType: "Perkiraan jaringan, bukan GPS"
+      timezone: monitorText(cf.timezone, 80)
     },
     firstSeen: old?.firstSeen || now,
     lastSeen: now
@@ -139,8 +129,9 @@ const branch = selectedBranch || "Belum memilih cabang";
 }
 
 async function monitorDevices(req, e) {
-  if (!await adminSessionValid(req, e))
-  return J({ ok: false, error: "Admin belum login." }, 401);
+  const role = await adminSessionRole(req, e);
+  if (!role) return J({ ok: false, error: "Admin belum login." }, 401);
+  if (role !== "main") return J({ ok: false, error: "Fitur Monitoring HP hanya untuk Admin Utama." }, 403);
 
   const devices = await monitorRead(e);
   devices.sort((a, b) =>
@@ -169,8 +160,8 @@ if(p==="/api/daily-motivation"&&req.method==="GET"){
 }
 
  if(p==="/api/admin/login"&&req.method==="POST")
-{if(!adminOriginOK(req))return J({ok:false,error:"Origin tidak valid."},403);let credential;try{credential=await getAdminCredential(e)}catch(err){return J({ok:false,error:err.message},502)}if(!credential)return J({ok:false,error:"Kata sandi admin belum dikonfigurasi."},500);let data;try{data=await req.json()}catch{return J({ok:false,error:"Data login tidak valid."},400)}if(!await verifyAdminPassword(data.password,credential))return J({ok:false,error:"Kata sandi salah."},401);const secret=credential.mode==="pbkdf2"?"adl-pbkdf2:"+credential.hash:credential.password;const exp=String(Math.floor(Date.now()/1000)+ADMIN_SESSION_SECONDS),sig=await adminMac(secret,"adl-admin-v1:"+exp);return new Response(JSON.stringify({ok:true,message:"Login admin berhasil."}),{headers:{...H,"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","Set-Cookie":adminCookie(exp+"."+sig,ADMIN_SESSION_SECONDS)}})}
- if(p==="/api/admin/check"&&req.method==="GET")return J({ok:await adminSessionValid(req,e)});
+{if(!adminOriginOK(req))return J({ok:false,error:"Origin tidak valid."},403);let credential;try{credential=await getAdminCredential(e)}catch(err){return J({ok:false,error:err.message},502)}if(!credential)return J({ok:false,error:"Kata sandi Admin Utama belum dikonfigurasi."},500);let data;try{data=await req.json()}catch{return J({ok:false,error:"Data login tidak valid."},400)}const input=typeof data.password==="string"?data.password:"";let role=null;if(await verifyAdminPassword(input,credential))role="main";else if(e.ADMIN_PASSWORD_LIMITED&&input===String(e.ADMIN_PASSWORD_LIMITED))role="limited";if(!role)return J({ok:false,error:"Kata sandi salah."},401);const secret=credential.mode==="pbkdf2"?"adl-pbkdf2:"+credential.hash:credential.password;const exp=String(Math.floor(Date.now()/1000)+ADMIN_SESSION_SECONDS),sig=await adminMac(secret,"adl-admin-v2:"+exp+":"+role);return new Response(JSON.stringify({ok:true,role,message:"Login admin berhasil."}),{headers:{...H,"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","Set-Cookie":adminCookie(exp+"."+role+"."+sig,ADMIN_SESSION_SECONDS)}})}
+ if(p==="/api/admin/check"&&req.method==="GET"){const role=await adminSessionRole(req,e);return J({ok:!!role,role});}
  if(p==="/api/admin/logout"&&req.method==="POST"){if(!adminOriginOK(req))return J({ok:false,error:"Origin tidak valid."},403);return new Response(JSON.stringify({ok:true}),{headers:{...H,"Content-Type":"application/json; charset=utf-8","Set-Cookie":adminCookie("",0),"Cache-Control":"no-store"}})}
  if(p.startsWith("/api/admin/")&&req.method==="POST"&&!await adminSessionValid(req,e))return J({ok:false,error:"Admin belum login."},401);
  if(p.startsWith("/api/admin/")&&req.method==="POST"&&!adminOriginOK(req))return J({ok:false,error:"Origin tidak valid."},403);
