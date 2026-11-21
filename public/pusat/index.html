@@ -476,8 +476,23 @@ async function loadDeviceMonitoring(){
   const d=await r.json();
   if(!r.ok||!d.ok)throw Error(d.error||('HTTP '+r.status));
 
-  const devices=Array.isArray(d.devices)?d.devices:[];
+  const rawDevices=Array.isArray(d.devices)?d.devices:[];
   const now=Date.now();
+
+  // Satukan catatan lama dengan fingerprint perangkat/browser yang sama.
+  const fingerprint=x=>[
+   x.brand,x.model,x.os,x.browser,x.userAgent
+  ].map(v=>String(v||'').trim().toLowerCase()).join('|');
+  const grouped=new Map();
+  rawDevices.forEach(x=>{
+   const key=x.userAgent?fingerprint(x):(x.deviceId||'');
+   const prev=grouped.get(key);
+   if(!prev){grouped.set(key,{...x});return;}
+   const first=[prev.firstSeen,x.firstSeen].filter(Boolean).sort()[0]||null;
+   const latest=Date.parse(x.lastSeen||0)>Date.parse(prev.lastSeen||0)?x:prev;
+   grouped.set(key,{...latest,firstSeen:first});
+  });
+  const devices=[...grouped.values()];
   const online=devices.filter(x=>
    now-Date.parse(x.lastSeen||0)<=120000
   );
