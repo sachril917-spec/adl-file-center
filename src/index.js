@@ -58,95 +58,6 @@ function monitorTokenOK(req, e) {
   return diff === 0;
 }
 
-
-async function monitorGeo(req) {
-  const cf = req.cf || {};
-  const ip = monitorText(req.headers.get("CF-Connecting-IP"), 80);
-  const candidates = [];
-
-  // Cloudflare supplies a first estimate without exposing the IP to the browser.
-  if (cf.city || cf.region || cf.country) {
-    candidates.push({
-      source: "Cloudflare",
-      city: monitorText(cf.city, 100),
-      region: monitorText(cf.region, 100),
-      country: monitorText(cf.country, 80),
-      timezone: monitorText(cf.timezone, 80)
-    });
-  }
-
-  if (ip) {
-    const lookups = [
-      (async () => {
-        const r = await fetch("https://ipwho.is/" + encodeURIComponent(ip), {
-          headers: { "Accept": "application/json" },
-          signal: AbortSignal.timeout(3500)
-        });
-        if (!r.ok) throw Error("ipwho");
-        const d = await r.json();
-        if (d.success === false) throw Error("ipwho");
-        return {
-          source: "IPWho",
-          city: monitorText(d.city, 100),
-          region: monitorText(d.region, 100),
-          country: monitorText(d.country, 80),
-          timezone: monitorText(d.timezone?.id, 80)
-        };
-      })(),
-      (async () => {
-        const r = await fetch("https://ipapi.co/" + encodeURIComponent(ip) + "/json/", {
-          headers: { "Accept": "application/json" },
-          signal: AbortSignal.timeout(3500)
-        });
-        if (!r.ok) throw Error("ipapi");
-        const d = await r.json();
-        if (d.error) throw Error("ipapi");
-        return {
-          source: "IPAPI",
-          city: monitorText(d.city, 100),
-          region: monitorText(d.region, 100),
-          country: monitorText(d.country_name, 80),
-          timezone: monitorText(d.timezone, 80)
-        };
-      })()
-    ];
-    const results = await Promise.allSettled(lookups);
-    for (const result of results) {
-      if (result.status === "fulfilled" &&
-          (result.value.city || result.value.region || result.value.country)) {
-        candidates.push(result.value);
-      }
-    }
-  }
-
-  const valid = candidates.filter(x => x.city || x.region || x.country);
-  const cityKey = x => monitorText(x.city, 100).toLowerCase();
-  const cityCounts = new Map();
-  for (const item of valid) {
-    const key = cityKey(item);
-    if (key) cityCounts.set(key, (cityCounts.get(key) || 0) + 1);
-  }
-  const ranked = [...cityCounts.entries()].sort((a, b) => b[1] - a[1]);
-  const winner = ranked[0]?.[0] || "";
-  const chosen = valid.find(x => cityKey(x) === winner) || valid[0] || {};
-  const agreement = winner ? ranked[0][1] : 0;
-  const confidence = agreement >= 2 ? "Tinggi (sumber sepakat)" :
-    valid.length >= 2 ? "Rendah (sumber berbeda)" :
-    valid.length === 1 ? "Rendah (1 sumber)" : "Tidak tersedia";
-
-  return {
-    city: monitorText(chosen.city, 100),
-    region: monitorText(chosen.region, 100),
-    country: monitorText(chosen.country, 80),
-    timezone: monitorText(chosen.timezone, 80),
-    confidence,
-    sourceCount: valid.length,
-    sources: valid.map(x => x.source),
-    checkedAt: new Date().toISOString(),
-    note: "Perkiraan berdasarkan IP jaringan, bukan posisi GPS. Bisa meleset karena routing/operator/VPN."
-  };
-}
-
 async function monitorHeartbeat(req, e) {
   let d;
   try { d = await req.json(); }
@@ -183,7 +94,31 @@ const branch = selectedBranch || "Belum memilih cabang";
   const old = devices.find(x => x.deviceId === deviceId) ||
     devices.find(x => x.userAgent && fingerprint(x) === currentFingerprint);
 
-  const ipLocation = await monitorGeo(req);
+  const cf = req.cf || {};
+  // Best-effort IP geolocation without requesting device GPS permission.
+  // This estimates the network exit point, not the handset's physical position.
+  const clientIp = req.headers.get("cf-connecting-ip") || "";
+  const lookups = clientIp ? await Promise.allSettled([
+    fetch("https://ipwho.is/" + encodeURIComponent(clientIp), { cf: { cacheTtl: 300 } }).then(r => r.ok ? r.json() : null),
+    fetch("https://ipapi.co/" + encodeURIComponent(clientIp) + "/json/", { cf: { cacheTtl: 300 } }).then(r => r.ok ? r.json() : null)
+  ]) : [];
+  const ipwho = lookups[0]?.status === "fulfilled" ? lookups[0].value : null;
+  const ipapi = lookups[1]?.status === "fulfilled" ? lookups[1].value : null;
+  const candidates = [
+    ipwho && ipwho.success !== false ? { city: ipwho.city, region: ipwho.region, country: ipwho.country, source: "IPWho" } : null,
+    ipapi && !ipapi.error ? { city: ipapi.city, region: ipapi.region, country: ipapi.country_name, source: "IPAPI" } : null,
+    cf.city || cf.region || cf.country ? { city: cf.city, region: cf.region, country: cf.country, source: "Cloudflare" } : null
+  ].filter(x => x && (x.city || x.region || x.country));
+  const norm = x => [x.city, x.region, x.country].map(v => String(v || "").trim().toLowerCase()).join("|");
+  const counts = new Map();
+  for (const c of candidates) {
+    const key = norm(c);
+    if (key.replace(/\\|/g, "")) counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  const ranked = [...counts.entries()].sort((a,b) => b[1] - a[1]);
+  const winnerKey = ranked[0]?.[0] || "";
+  const winner = candidates.find(c => norm(c) === winnerKey) || null;
+  const agreement = ranked[0]?.[1] || 0;
   const item = {
     deviceId,
     branch,
@@ -192,9 +127,17 @@ const branch = selectedBranch || "Belum memilih cabang";
     os,
     browser,
     userAgent,
-    // Gabungan perkiraan IP dari Cloudflare dan dua layanan geolokasi.
-    // IP mentah tidak disimpan di data monitoring.
-    ipLocation,
+    // Lokasi perkiraan berdasarkan konsensus beberapa database IP; bukan GPS.
+    ipLocation: {
+      city: monitorText(winner?.city || cf.city, 100),
+      region: monitorText(winner?.region || cf.region, 100),
+      country: monitorText(winner?.country || cf.country, 80),
+      timezone: monitorText(cf.timezone, 80),
+      sources: candidates.map(c => c.source),
+      agreement,
+      sourceCount: candidates.length,
+      confidence: agreement >= 2 ? "Kesepakatan beberapa sumber" : "Rendah — hanya perkiraan IP"
+    },
     firstSeen: old?.firstSeen || now,
     lastSeen: now
   };
