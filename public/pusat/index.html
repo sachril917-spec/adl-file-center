@@ -423,7 +423,11 @@ setInterval(()=>{
  // Restore the last selected section after a full refresh without forcing the page back to the top/home.
  if(loggedIn()){nav.classList.remove('hidden');showSection(activeSection(),{scroll:false})}
  window.addEventListener('pageshow',()=>{if(loggedIn())showSection(activeSection(),{scroll:false})});
- setInterval(()=>{if(loggedIn()&&activeSection()==='monitoring'&&document.getElementById('monitorToken')?.value.trim())loadDeviceMonitoring()},30000);
+ setInterval(()=>{
+  if(loggedIn()&&activeSection()==='monitoring'){
+    loadDeviceMonitoring();
+  }
+},30000);
  // Saat refresh, jangan menganggap gangguan jaringan sementara sebagai logout. Bagian aktif dipulihkan setelah data selesai dimuat.
  window.addEventListener('DOMContentLoaded',()=>{try{const saved=localStorage.getItem(SECTION_KEY);if(validSections.includes(saved))document.body.dataset.adlSection=saved}catch(e){}});
 })();
