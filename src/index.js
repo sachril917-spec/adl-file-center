@@ -99,8 +99,8 @@ const branch = selectedBranch || "Belum memilih cabang";
 }
 
 async function monitorDevices(req, e) {
-  if (!monitorTokenOK(req, e))
-    return J({ ok: false, error: "Token monitoring tidak valid." }, 403);
+  if (!await adminSessionValid(req, e))
+  return J({ ok: false, error: "Admin belum login." }, 401);
 
   const devices = await monitorRead(e);
   devices.sort((a, b) =>
