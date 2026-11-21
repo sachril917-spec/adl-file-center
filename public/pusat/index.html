@@ -518,6 +518,7 @@ async function loadDeviceMonitoring(){
    '</span><div class="meta">'+
    esc(x.brand||'')+' '+esc(x.model||'Perangkat tidak diketahui')+
    '<br>'+esc(x.os||'')+' • '+esc(x.browser||'')+
+   '<br>Lokasi jaringan: '+esc([x.ipLocation?.city,x.ipLocation?.region,x.ipLocation?.country].filter(Boolean).join(', ')||'Tidak tersedia')+
    '<br>Pertama terlihat: '+dt(x.firstSeen)+
    '<br>Terakhir aktif: '+dt(x.lastSeen)+
    '</div></div>';
