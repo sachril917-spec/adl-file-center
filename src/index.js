@@ -78,22 +78,38 @@ const branch = selectedBranch || "Belum memilih cabang";
 
   const now = new Date().toISOString();
   const devices = await monitorRead(e);
-  const old = devices.find(x => x.deviceId === deviceId);
+  const brand = monitorText(d.brand, 80) || "Tidak diketahui";
+  const model = monitorText(d.model, 120) || "Perangkat tidak teridentifikasi";
+  const os = monitorText(d.os, 80) || "Tidak diketahui";
+  const browser = monitorText(d.browser, 80) || "Tidak diketahui";
+  const userAgent = monitorText(d.userAgent, 350);
+
+  // deviceId menjadi identitas utama; fingerprint menyatukan catatan lama
+  // saat ID browser perangkat yang sama pernah berubah.
+  const fingerprint = x =>
+    [x.brand, x.model, x.os, x.browser, x.userAgent]
+      .map(v => monitorText(v, 350).toLowerCase())
+      .join("|");
+  const currentFingerprint = fingerprint({ brand, model, os, browser, userAgent });
+  const old = devices.find(x => x.deviceId === deviceId) ||
+    devices.find(x => x.userAgent && fingerprint(x) === currentFingerprint);
 
   const item = {
     deviceId,
     branch,
-    brand: monitorText(d.brand, 80) || "Tidak diketahui",
-    model: monitorText(d.model, 120) || "Perangkat tidak teridentifikasi",
-    os: monitorText(d.os, 80) || "Tidak diketahui",
-    browser: monitorText(d.browser, 80) || "Tidak diketahui",
-    userAgent: monitorText(d.userAgent, 350),
+    brand,
+    model,
+    os,
+    browser,
+    userAgent,
     firstSeen: old?.firstSeen || now,
     lastSeen: now
   };
 
   const next = devices.filter(x =>
     x.deviceId !== deviceId &&
+    (!old || x.deviceId !== old.deviceId) &&
+    !(x.userAgent && fingerprint(x) === currentFingerprint) &&
     Date.now() - Date.parse(x.lastSeen || 0) < 90 * 86400000
   );
 
