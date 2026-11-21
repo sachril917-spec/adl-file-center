@@ -106,14 +106,14 @@ async function monitorDevices(req, e) {
   return J({ ok: true, devices });
 }
 
-if (p === "/api/monitor/heartbeat" && req.method === "POST")
-  return await monitorHeartbeat(req, e);
-
-if (p === "/api/monitor/devices" && req.method === "GET")
-  return await monitorDevices(req, e);
-
 export default {async fetch(req,e){if(req.method==="OPTIONS")return new Response(null,{status:204,headers:H});const url=new URL(req.url),p=url.pathname;if(p==="/api/health")return J({ok:true,storage:"Backblaze B2"});
 try{
+ if(p==="/api/monitor/heartbeat"&&req.method==="POST")
+   return await monitorHeartbeat(req,e);
+
+ if(p==="/api/monitor/devices"&&req.method==="GET")
+   return await monitorDevices(req,e);
+
  if(p==="/api/branches"&&req.method==="GET")return J({branches:await getBranches(e)});
 
  
