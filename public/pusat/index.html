@@ -259,9 +259,138 @@ html.adl-session-restoring body:has(#loginBox:not(.hidden)) #loginBox{display:no
 html.adl-session-restoring body:has(#loginBox:not(.hidden)) #adminBar{display:flex!important}
 html.adl-session-restoring body:has(#loginBox:not(.hidden)) .stats,html.adl-session-restoring body:has(#loginBox:not(.hidden)) #reload,html.adl-session-restoring body:has(#loginBox:not(.hidden)) #status{display:block!important}
 </style>
+<style>/* Pengaturan admin dan tombol tampil/sembunyikan kata sandi */
+.loginPasswordWrap,.settingPasswordWrap{position:relative;display:flex;align-items:center;flex:1;min-width:0}.loginPasswordWrap input,.settingPasswordWrap input{width:100%;padding-right:54px!important}.eyeBtn{position:absolute;right:8px;top:50%;transform:translateY(-50%);margin:0!important;padding:8px 10px!important;min-width:40px!important;width:auto!important;background:#edf3fb!important;color:#31547f!important;border:1px solid #d7e2f1!important;border-radius:10px!important;box-shadow:none!important;font-size:17px!important;line-height:1!important}.adminTools{display:flex;gap:8px;align-items:center}.settingsBtn{background:#315b91!important;padding:10px 13px!important}.adminSettings{display:none;margin-top:12px;padding:16px;border:1px solid #dce6f4;border-radius:16px;background:#f8fbff}.adminSettings.open{display:block}.adminSettings h3{margin:0 0 8px}.adminSettings p{margin:0 0 12px;color:#64748b;font-size:13px}.adminSettings .settingPasswordWrap{margin:8px 0}.adminSettings input{width:100%;padding:13px 54px 13px 14px;border:1px solid #cbd5e1;border-radius:11px;font-size:16px}.adminSettings .eyeBtn{top:50%;margin:0!important}.adminSettingsMsg{margin-top:9px;font-size:13px;color:#315b91}@media(max-width:600px){.loginPasswordWrap{width:100%}.adminBar{align-items:flex-start!important}.adminTools{margin-left:auto}}</style>
+
+<style id="adl-first-screen-polish">
+/* ADL PUSAT — penyegaran layar awal/login, visual saja */
+body:has(#loginBox:not(.hidden)){
+  padding:clamp(14px,4vw,28px)!important;
+  background:
+    radial-gradient(ellipse at 12% 12%,rgba(81,151,255,.28),transparent 34%),
+    radial-gradient(ellipse at 88% 88%,rgba(35,105,205,.16),transparent 34%),
+    linear-gradient(145deg,#eaf2ff 0%,#f7faff 48%,#e8f0fb 100%)!important;
+}
+body:has(#loginBox:not(.hidden)) main{
+  max-width:470px!important;
+  animation:adlIntro .55s ease both;
+}
+body:has(#loginBox:not(.hidden)) main>section.card:first-child{
+  position:relative!important;
+  isolation:isolate;
+  overflow:hidden!important;
+  padding:34px clamp(19px,5vw,32px) 28px!important;
+  border:1px solid rgba(255,255,255,.96)!important;
+  border-radius:30px!important;
+  background:linear-gradient(155deg,rgba(255,255,255,.99),rgba(248,251,255,.97))!important;
+  box-shadow:0 30px 85px rgba(25,58,105,.15),0 5px 18px rgba(25,58,105,.05)!important;
+}
+body:has(#loginBox:not(.hidden)) main>section.card:first-child:after{
+  content:"";
+  position:absolute;z-index:-1;
+  width:230px;height:230px;right:-120px;top:-135px;
+  border-radius:50%;
+  background:linear-gradient(145deg,#dceaff,#eff6ff);
+}
+body:has(#loginBox:not(.hidden)) main>section.card:first-child:before{
+  content:"ADL";
+  display:grid;place-items:center;
+  width:76px;height:76px;margin:0 auto 19px;
+  border-radius:24px;
+  color:#fff;
+  background:linear-gradient(145deg,#327ff0 0%,#174ca8 100%);
+  box-shadow:0 12px 26px rgba(28,91,190,.25),inset 0 1px 0 rgba(255,255,255,.35);
+  font-size:25px;font-weight:900;letter-spacing:1.8px;
+}
+body:has(#loginBox:not(.hidden)) #adlOverview h1{
+  text-align:center!important;
+  font-size:clamp(26px,6vw,32px)!important;
+  line-height:1.16!important;
+  letter-spacing:-1.05px!important;
+  color:#142f59!important;
+  margin:0 0 10px!important;
+}
+body:has(#loginBox:not(.hidden)) #adlOverview>.sub{
+  max-width:310px!important;margin:0 auto 25px!important;
+  text-align:center!important;font-size:14px!important;
+  line-height:1.65!important;color:#71819a!important;
+}
+body:has(#loginBox:not(.hidden)) .loginBox{
+  margin:0!important;padding:23px clamp(14px,4vw,21px) 20px!important;
+  border:1px solid #e2eaf6!important;border-radius:22px!important;
+  background:linear-gradient(145deg,#f8fbff,#f0f6ff)!important;
+  box-shadow:inset 0 1px 0 #fff!important;
+}
+body:has(#loginBox:not(.hidden)) .loginBox h2{
+  color:#183861!important;text-align:center!important;
+  font-size:20px!important;font-weight:800!important;
+  letter-spacing:-.35px!important;margin:0 0 7px!important;
+}
+body:has(#loginBox:not(.hidden)) .loginBox p{
+  max-width:280px!important;margin:0 auto 18px!important;
+  color:#77869b!important;text-align:center!important;
+  font-size:13px!important;line-height:1.6!important;
+}
+body:has(#loginBox:not(.hidden)) .loginRow{
+  display:flex!important;flex-direction:column!important;
+  align-items:stretch!important;gap:12px!important;
+}
+body:has(#loginBox:not(.hidden)) .loginPasswordWrap{
+  display:block!important;position:relative!important;width:100%!important;
+  min-width:0!important;flex:none!important;
+}
+body:has(#loginBox:not(.hidden)) .loginRow .loginPasswordWrap input{
+  display:block!important;width:100%!important;min-width:0!important;
+  min-height:55px!important;padding:15px 58px 15px 16px!important;
+  border:1px solid #d4dfef!important;border-radius:15px!important;
+  background:#fff!important;color:#1b2e49!important;
+  font-size:15px!important;box-shadow:0 2px 5px rgba(20,50,90,.025)!important;
+}
+body:has(#loginBox:not(.hidden)) .loginRow .loginPasswordWrap input:focus{
+  border-color:#6b9be8!important;box-shadow:0 0 0 4px rgba(37,99,235,.10)!important;
+}
+body:has(#loginBox:not(.hidden)) .loginRow .eyeBtn{
+  position:absolute!important;right:8px!important;top:50%!important;
+  transform:translateY(-50%)!important;width:40px!important;min-width:40px!important;
+  min-height:38px!important;height:38px!important;margin:0!important;padding:0!important;
+  display:grid!important;place-items:center!important;
+  border:1px solid #e2eaf5!important;border-radius:11px!important;
+  background:#f4f7fc!important;color:#345477!important;
+  box-shadow:none!important;font-size:16px!important;
+}
+body:has(#loginBox:not(.hidden)) .loginRow>button#loginBtn{
+  width:100%!important;min-height:54px!important;margin:0!important;
+  border:0!important;border-radius:15px!important;
+  background:linear-gradient(115deg,#2d75e8,#174fae)!important;
+  color:#fff!important;font-size:15px!important;font-weight:800!important;
+  letter-spacing:.15px!important;
+  box-shadow:0 9px 20px rgba(34,96,194,.22)!important;
+}
+body:has(#loginBox:not(.hidden)) .loginRow>button#loginBtn:active{
+  transform:translateY(1px) scale(.99)!important;
+}
+body:has(#loginBox:not(.hidden)) .loginMsg{
+  min-height:18px;margin-top:12px!important;
+  text-align:center!important;font-size:13px!important;
+}
+body:has(#loginBox:not(.hidden)) #adminBar,
+body:has(#loginBox:not(.hidden)) .stats,
+body:has(#loginBox:not(.hidden)) #reload,
+body:has(#loginBox:not(.hidden)) #status{display:none!important}
+@keyframes adlIntro{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:420px){
+ body:has(#loginBox:not(.hidden)){padding:13px!important}
+ body:has(#loginBox:not(.hidden)) main>section.card:first-child{padding:27px 17px 21px!important;border-radius:25px!important}
+ body:has(#loginBox:not(.hidden)) main>section.card:first-child:before{width:68px;height:68px;border-radius:21px;font-size:23px}
+ body:has(#loginBox:not(.hidden)) .loginBox{padding:20px 13px 17px!important}
+}
+@media(prefers-reduced-motion:reduce){body:has(#loginBox:not(.hidden)) main{animation:none}}
+</style>
+
 </head><body><main>
 <section class="card" id="adlOverview"><h1>📥 Pusat Berkas ADL</h1><div class="sub">Daftar berkas dari seluruh cabang. Data diperbarui otomatis setiap 30 detik.</div>
-<div id="loginBox" class="loginBox"><h2>🔐 Login Admin</h2><p>Masuk untuk melihat daftar dan mengunduh berkas cabang.</p><form id="loginForm"><div class="loginRow"><input id="adminPassword" type="password" autocomplete="current-password" placeholder="Masukkan kata sandi admin" required><button id="loginBtn" type="submit">Masuk</button></div></form><div id="loginMsg" class="loginMsg" aria-live="polite"></div></div><div id="adminBar" class="adminBar hidden"><span>Admin sudah masuk.</span><button id="logoutBtn" class="logoutBtn" type="button">Keluar</button></div>
+<div id="loginBox" class="loginBox"><h2>🔐 Login Admin</h2><p>Masuk untuk melihat daftar dan mengunduh berkas cabang.</p><form id="loginForm"><div class="loginRow"><div class="loginPasswordWrap"><input id="adminPassword" type="password" autocomplete="current-password" placeholder="Masukkan kata sandi admin" required><button class="eyeBtn" type="button" data-toggle-password="adminPassword" aria-label="Tampilkan kata sandi" title="Tampilkan kata sandi">👁</button></div><button id="loginBtn" type="submit">Masuk</button></div></form><div id="loginMsg" class="loginMsg" aria-live="polite"></div></div><div id="adminBar" class="adminBar hidden"><span>Admin sudah masuk.</span><div class="adminTools"><button id="settingsToggle" class="settingsBtn" type="button" aria-expanded="false" title="Pengaturan admin">⚙ Pengaturan</button><button id="logoutBtn" class="logoutBtn" type="button">Keluar</button></div></div>
+<div id="adminSettings" class="adminSettings"><h3>⚙ Ganti Kata Sandi Admin</h3><p>Masukkan kata sandi baru dan ulangi untuk konfirmasi. Kata sandi disimpan di Backblaze.</p><form id="changePasswordForm"><div class="settingPasswordWrap"><input id="newAdminPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Kata sandi baru" required><button class="eyeBtn" type="button" data-toggle-password="newAdminPassword" aria-label="Tampilkan kata sandi" title="Tampilkan kata sandi">👁</button></div><div class="settingPasswordWrap"><input id="confirmAdminPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Ulangi kata sandi baru" required><button class="eyeBtn" type="button" data-toggle-password="confirmAdminPassword" aria-label="Tampilkan kata sandi" title="Tampilkan kata sandi">👁</button></div><button id="changePasswordBtn" type="submit">Simpan Kata Sandi Baru</button><button id="settingsClose" type="button" class="logoutBtn">Tutup</button></form><div id="changePasswordMsg" class="adminSettingsMsg" aria-live="polite"></div></div>
 
 <div class="stats"><div class="stat"><span>Total berkas</span><strong id="total">—</strong></div><div class="stat"><span>Cabang mengirim</span><strong id="branchesCount">—</strong></div><div class="stat"><span>Ukuran total</span><strong id="size">—</strong></div></div><div style="margin-top:16px"><button id="reload" type="button" onclick="load()">↻ Muat ulang</button></div><div id="status" class="status" aria-live="polite">Memuat data…</div></section>
 <nav id="adlSectionNav" class="adl-section-nav hidden" aria-label="Menu Pusat Berkas">
@@ -321,7 +450,12 @@ $('cmpRun').addEventListener('click',async()=>{const msg=$('cmpMsg'),out=$('cmpR
 $('cmpCsv').addEventListener('click',()=>{if(!cmpRows.length)return;const cols=['source','code','name','final','monthly','difference','percent'],lines=[['File sumber','Kode barang','Nama barang','SO Final','SO Bulanan','Selisih','Selisih %'],...cmpRows.map(r=>cols.map(c=>r[c]))].map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');const blob=new Blob(['\ufeff'+lines],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='hasil-perbandingan-so.csv';a.click();URL.revokeObjectURL(url)});
 $('cmpXlsx').addEventListener('click',()=>{if(!cmpStats.length)return;const wb=XLSX.utils.book_new();const summary=[['File sumber','Total kode unik','Sama','Berbeda','Hanya SO Final','Hanya SO Bulanan','Kecocokan (%)'],...cmpStats.map(x=>[x.source,x.total,x.equal,x.different,x.onlyFinal,x.onlyMonthly,Number(x.score.toFixed(2))])];const ws1=XLSX.utils.aoa_to_sheet(summary);ws1['!cols']=[{wch:40},{wch:16},{wch:12},{wch:12},{wch:16},{wch:18},{wch:18}];XLSX.utils.book_append_sheet(wb,ws1,'Ringkasan');const detail=[['File sumber','Kode barang','Nama barang','SO Final','SO Bulanan','Selisih / status','Selisih (%)'],...cmpRows.map(x=>[x.source,String(x.code),x.name,String(x.final),String(x.monthly),String(x.difference),String(x.percent)])];const ws2=XLSX.utils.aoa_to_sheet(detail);ws2['!cols']=[{wch:40},{wch:22},{wch:42},{wch:16},{wch:16},{wch:30},{wch:16}];if(ws2['!ref']){const range=XLSX.utils.decode_range(ws2['!ref']);for(let row=1;row<=range.e.r;row++){const cell=ws2[XLSX.utils.encode_cell({r:row,c:1})];if(cell)cell.t='s';}}XLSX.utils.book_append_sheet(wb,ws2,'Detail Perbandingan');XLSX.writeFile(wb,'hasil-perbandingan-so.xlsx')});
 
-$('closePreview').addEventListener('click',()=>{$('previewModal').style.display='none';$('previewBody').innerHTML=''});$('previewModal').addEventListener('click',e=>{if(e.target===$('previewModal'))$('previewModal').style.display='none'});$('q').addEventListener('input',render);$('branchFilter').addEventListener('change',render);$('yearFilter').addEventListener('change',render);$('monthFilter').addEventListener('change',render);$('soReload').addEventListener('click',renderSO);$('soMonth').addEventListener('change',renderSO);$('soYear').addEventListener('change',renderSO);$('soMonth').innerHTML=months.map((m,i)=>'<option value="'+String(i+1).padStart(2,'0')+'">'+m+'</option>').join('');$('soYear').innerHTML=Array.from({length:7},(_,i)=>new Date().getFullYear()+2-i).map(y=>'<option value="'+y+'">'+y+'</option>').join('');$('soMonth').value=String(new Date().getMonth()+1).padStart(2,'0');$('soYear').value=String(new Date().getFullYear());$('closePreview').addEventListener('click',()=>{$('previewModal').style.display='none';$('previewBody').innerHTML=''});$('previewModal').addEventListener('click',e=>{if(e.target===$('previewModal'))$('previewModal').style.display='none'});$('loginForm').addEventListener('submit',async ev=>{ev.preventDefault();const btn=$('loginBtn'),msg=$('loginMsg');btn.disabled=true;msg.textContent='Memeriksa kata sandi…';try{const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',cache:'no-store',body:JSON.stringify({password:$('adminPassword').value})});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Login gagal.');$('adminPassword').value='';try{sessionStorage.setItem('adlAdminSessionUI','1')}catch(e){}document.documentElement.classList.remove('adl-session-restoring');msg.textContent='Login berhasil. Memuat berkas…';await load();if(!$('adminBar').classList.contains('hidden'))msg.textContent='';}catch(e){msg.textContent=e.message||'Login gagal.'}finally{btn.disabled=false}});$('logoutBtn').addEventListener('click',async()=>{$('sfRecords').innerHTML='';$('sfMsg').textContent='';try{await fetch('/api/admin/logout',{method:'POST',credentials:'same-origin',cache:'no-store'})}catch(e){}try{sessionStorage.removeItem('adlAdminSessionUI')}catch(e){}document.documentElement.classList.remove('adl-session-restoring');$('loginBox').classList.remove('hidden');$('adminBar').classList.add('hidden');$('total').textContent='—';$('branchesCount').textContent='—';$('size').textContent='—';$('list').innerHTML='<div class="empty">Silakan login untuk melihat berkas.</div>';$('status').textContent='Anda sudah keluar.';allFiles=[]});load();setInterval(()=>{if(!$('adminBar').classList.contains('hidden')){const y=window.scrollY;load().finally(()=>{if(Math.abs(window.scrollY-y)>8)window.scrollTo({top:y,behavior:'instant'})})}},30000);if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
+$('closePreview').addEventListener('click',()=>{$('previewModal').style.display='none';$('previewBody').innerHTML=''});$('previewModal').addEventListener('click',e=>{if(e.target===$('previewModal'))$('previewModal').style.display='none'});$('q').addEventListener('input',render);$('branchFilter').addEventListener('change',render);$('yearFilter').addEventListener('change',render);$('monthFilter').addEventListener('change',render);$('soReload').addEventListener('click',renderSO);$('soMonth').addEventListener('change',renderSO);$('soYear').addEventListener('change',renderSO);$('soMonth').innerHTML=months.map((m,i)=>'<option value="'+String(i+1).padStart(2,'0')+'">'+m+'</option>').join('');$('soYear').innerHTML=Array.from({length:7},(_,i)=>new Date().getFullYear()+2-i).map(y=>'<option value="'+y+'">'+y+'</option>').join('');$('soMonth').value=String(new Date().getMonth()+1).padStart(2,'0');$('soYear').value=String(new Date().getFullYear());$('closePreview').addEventListener('click',()=>{$('previewModal').style.display='none';$('previewBody').innerHTML=''});$('previewModal').addEventListener('click',e=>{if(e.target===$('previewModal'))$('previewModal').style.display='none'});$('loginForm').addEventListener('submit',async ev=>{ev.preventDefault();const btn=$('loginBtn'),msg=$('loginMsg');btn.disabled=true;msg.textContent='Memeriksa kata sandi…';try{const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',cache:'no-store',body:JSON.stringify({password:$('adminPassword').value})});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Login gagal.');$('adminPassword').value='';try{sessionStorage.setItem('adlAdminSessionUI','1')}catch(e){}document.documentElement.classList.remove('adl-session-restoring');msg.textContent='Login berhasil. Memuat berkas…';await load();if(!$('adminBar').classList.contains('hidden'))msg.textContent='';}catch(e){msg.textContent=e.message||'Login gagal.'}finally{btn.disabled=false}});$('logoutBtn').addEventListener('click',async()=>{$('sfRecords').innerHTML='';$('sfMsg').textContent='';try{await fetch('/api/admin/logout',{method:'POST',credentials:'same-origin',cache:'no-store'})}catch(e){}try{sessionStorage.removeItem('adlAdminSessionUI')}catch(e){}document.documentElement.classList.remove('adl-session-restoring');$('loginBox').classList.remove('hidden');$('adminBar').classList.add('hidden');$('total').textContent='—';$('branchesCount').textContent='—';$('size').textContent='—';$('list').innerHTML='<div class="empty">Silakan login untuk melihat berkas.</div>';$('status').textContent='Anda sudah keluar.';allFiles=[]});
+document.querySelectorAll('[data-toggle-password]').forEach(btn=>btn.addEventListener('click',()=>{const field=$(btn.dataset.togglePassword);if(!field)return;const showing=field.type==='password';field.type=showing?'text':'password';btn.textContent=showing?'🙈':'👁';btn.setAttribute('aria-label',showing?'Sembunyikan kata sandi':'Tampilkan kata sandi');btn.title=showing?'Sembunyikan kata sandi':'Tampilkan kata sandi';}));
+$('settingsToggle').addEventListener('click',()=>{const panel=$('adminSettings'),open=!panel.classList.contains('open');panel.classList.toggle('open',open);$('settingsToggle').setAttribute('aria-expanded',String(open));});
+$('settingsClose').addEventListener('click',()=>{$('adminSettings').classList.remove('open');$('settingsToggle').setAttribute('aria-expanded','false');});
+$('changePasswordForm').addEventListener('submit',async ev=>{ev.preventDefault();const btn=$('changePasswordBtn'),msg=$('changePasswordMsg'),password=$('newAdminPassword').value,confirmation=$('confirmAdminPassword').value;if(password.length<8){msg.textContent='Kata sandi minimal 8 karakter.';return}if(password!==confirmation){msg.textContent='Konfirmasi kata sandi tidak sama.';return}btn.disabled=true;msg.textContent='Menyimpan kata sandi ke Backblaze…';try{const r=await fetch('/api/admin/change-password',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',cache:'no-store',body:JSON.stringify({newPassword:password,confirmPassword:confirmation})});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Gagal mengubah kata sandi.');$('newAdminPassword').value='';$('confirmAdminPassword').value='';msg.textContent='Kata sandi berhasil diubah. Silakan login dengan kata sandi baru.';$('adminSettings').classList.remove('open');$('settingsToggle').setAttribute('aria-expanded','false');$('logoutBtn').click();}catch(e){msg.textContent=e.message||'Gagal mengubah kata sandi.'}finally{btn.disabled=false}});
+load();setInterval(()=>{if(!$('adminBar').classList.contains('hidden')){const y=window.scrollY;load().finally(()=>{if(Math.abs(window.scrollY-y)>8)window.scrollTo({top:y,behavior:'instant'})})}},30000);if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
 
 // === ADL DEVICE MONITORING DASHBOARD (tambahan terpisah) ===
 
