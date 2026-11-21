@@ -58,13 +58,17 @@ async function monitorHeartbeat(req, e) {
   catch { return J({ ok: false, error: "Data perangkat tidak valid." }, 400); }
 
   const deviceId = monitorText(d.deviceId, 100);
-  const branch = monitorText(d.branch, 100);
+const selectedBranch = monitorText(d.branch, 100);
 
-  if (!deviceId || !branch || d.page !== "cabang")
-    return J({ ok: false, error: "Identitas perangkat tidak valid." }, 400);
+if (!deviceId || d.page !== "cabang")
+  return J({ ok: false, error: "Identitas perangkat tidak valid." }, 400);
 
-  if (!(await getBranches(e)).includes(branch))
-    return J({ ok: false, error: "Cabang tidak terdaftar." }, 400);
+const branches = await getBranches(e);
+
+if (selectedBranch && !branches.includes(selectedBranch))
+  return J({ ok: false, error: "Cabang tidak terdaftar." }, 400);
+
+const branch = selectedBranch || "Belum memilih cabang";
 
   const now = new Date().toISOString();
   const devices = await monitorRead(e);
