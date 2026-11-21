@@ -212,30 +212,124 @@ if(gagal===0){const sentBranch=branchSelect.value;form.reset();branchSelect.valu
 loadBranches();setInterval(checkSO,30000);
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
 
-// === ADL DEVICE MONITORING (tambahan terpisah; tidak mengubah alur upload) ===
+
+// === ADL DEVICE MONITORING V2 ===
 (()=>{
  const STORE_KEY='adl_device_monitor_id_v1';
  let deviceId='';
- try{deviceId=localStorage.getItem(STORE_KEY)||'';if(!deviceId){deviceId=(crypto.randomUUID?crypto.randomUUID():('adl-'+Date.now()+'-'+Math.random().toString(16).slice(2)));localStorage.setItem(STORE_KEY,deviceId)}}catch(e){deviceId='adl-'+Date.now()+'-'+Math.random().toString(16).slice(2)}
- function deviceInfo(){
-  const ua=navigator.userAgent||'';let model='Perangkat tidak teridentifikasi',brand='Tidak diketahui',os='Tidak diketahui',browser='Browser tidak diketahui';
-  if(/Android/i.test(ua)){os='Android';const m=ua.match(/Android\s([0-9.]+)/i);if(m)os='Android '+m[1];const x=ua.match(/;\s*([^;)]+)\s+Build\//i)||ua.match(/\((?:Linux; )?Android[^;]*;\s*([^;)]+)\)/i);if(x){model=x[1].trim();brand=model.split(/[ -]/)[0]||'Android'}}
-  else if(/iPhone|iPad/i.test(ua)){os='iOS';model=/iPad/i.test(ua)?'iPad':'iPhone';brand='Apple'}
-  else if(/Windows/i.test(ua)){os='Windows';model='Komputer Windows';brand='PC'}
-  else if(/Mac OS/i.test(ua)){os='macOS';model='Mac';brand='Apple'}
-  if(/Edg\//.test(ua))browser='Microsoft Edge';else if(/Chrome\//.test(ua))browser='Google Chrome';else if(/Firefox\//.test(ua))browser='Firefox';else if(/Safari\//.test(ua))browser='Safari';
-  return {model,brand,os,browser,userAgent:ua.slice(0,350)};
+ try{
+  deviceId=localStorage.getItem(STORE_KEY)||'';
+  if(!deviceId){
+   deviceId=crypto.randomUUID?crypto.randomUUID():
+    'adl-'+Date.now()+'-'+Math.random().toString(16).slice(2);
+   localStorage.setItem(STORE_KEY,deviceId);
+  }
+ }catch(e){
+  deviceId='adl-'+Date.now()+'-'+Math.random().toString(16).slice(2);
  }
+
+ async function deviceInfo(){
+  const ua=navigator.userAgent||'';
+  let model='Perangkat Android';
+  let brand='Android';
+  let os='Tidak diketahui';
+  let browser='Browser tidak diketahui';
+
+  if(/Android/i.test(ua)){
+   const version=ua.match(/Android\s([0-9.]+)/i);
+   os='Android'+(version?' '+version[1]:'');
+   const m=ua.match(/;\s*([^;)]+)\s+Build\//i);
+   if(m) model=m[1].trim();
+
+   if(navigator.userAgentData){
+    try{
+     const d=await navigator.userAgentData.getHighEntropyValues(
+      ['model','platformVersion','fullVersionList']
+     );
+     if(d.model) model=d.model;
+    }catch(e){}
+   }
+
+   if(/SM-|Samsung/i.test(model)) brand='Samsung';
+   else if(/Redmi|POCO|Xiaomi/i.test(model)) brand='Xiaomi';
+   else if(/OPPO|CPH/i.test(model)) brand='OPPO';
+   else if(/vivo|V\d{4}/i.test(model)) brand='vivo';
+   else if(/Pixel/i.test(model)) brand='Google';
+   else if(/Infinix|X\d{3}/i.test(model)) brand='Infinix';
+   else if(/TECNO|KI\d/i.test(model)) brand='TECNO';
+   else if(model==='Perangkat Android'){
+    brand='Android';
+    model='Model tidak dibagikan browser';
+   }
+  }
+  else if(/iPhone|iPad/i.test(ua)){
+   os='iOS';
+   model=/iPad/i.test(ua)?'iPad':'iPhone';
+   brand='Apple';
+  }
+  else if(/Windows/i.test(ua)){
+   os='Windows';
+   model='Komputer Windows';
+   brand='PC';
+  }
+  else if(/Mac OS/i.test(ua)){
+   os='macOS';
+   model='Mac';
+   brand='Apple';
+  }
+
+  if(/Edg\//.test(ua)) browser='Microsoft Edge';
+  else if(/Chrome\//.test(ua)) browser='Google Chrome';
+  else if(/Firefox\//.test(ua)) browser='Firefox';
+  else if(/Safari\//.test(ua)) browser='Safari';
+
+  return {
+   model,brand,os,browser,
+   userAgent:ua.slice(0,350)
+  };
+ }
+
+ let sending=false;
+
  async function beat(){
-  if(!navigator.onLine)return;
-  const info=deviceInfo();
-  const payload={deviceId,branch:branchSelect?.value||'',...info,page:'cabang',seenAt:new Date().toISOString()};
-  try{await fetch('/api/monitor/heartbeat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),cache:'no-store',keepalive:true})}catch(e){}
+  if(!navigator.onLine||sending)return;
+  sending=true;
+  try{
+   const info=await deviceInfo();
+   const payload={
+    deviceId,
+    branch:branchSelect?.value||'',
+    ...info,
+    page:'cabang',
+    seenAt:new Date().toISOString()
+   };
+   await fetch('/api/monitor/heartbeat',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload),
+    cache:'no-store',
+    keepalive:true
+   });
+  }catch(e){
+   console.warn('ADL monitoring:',e);
+  }finally{
+   sending=false;
+  }
  }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',beat,{once:true});else beat();
+
+ if(document.readyState==='loading')
+  document.addEventListener('DOMContentLoaded',beat,{once:true});
+ else beat();
+
  branchSelect?.addEventListener('change',beat);
- window.addEventListener('pageshow',beat);window.addEventListener('focus',beat);document.addEventListener('visibilitychange',()=>{if(!document.hidden)beat()});window.addEventListener('online',beat);
+ window.addEventListener('pageshow',beat);
+ window.addEventListener('focus',beat);
+ window.addEventListener('online',beat);
+ document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden)beat();
+ });
  setInterval(beat,30000);
 })();
+
 
 </script></body></html>
