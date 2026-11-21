@@ -321,21 +321,73 @@ $('cmpXlsx').addEventListener('click',()=>{if(!cmpStats.length)return;const wb=X
 $('closePreview').addEventListener('click',()=>{$('previewModal').style.display='none';$('previewBody').innerHTML=''});$('previewModal').addEventListener('click',e=>{if(e.target===$('previewModal'))$('previewModal').style.display='none'});$('q').addEventListener('input',render);$('branchFilter').addEventListener('change',render);$('yearFilter').addEventListener('change',render);$('monthFilter').addEventListener('change',render);$('soReload').addEventListener('click',renderSO);$('soMonth').addEventListener('change',renderSO);$('soYear').addEventListener('change',renderSO);$('soMonth').innerHTML=months.map((m,i)=>'<option value="'+String(i+1).padStart(2,'0')+'">'+m+'</option>').join('');$('soYear').innerHTML=Array.from({length:7},(_,i)=>new Date().getFullYear()+2-i).map(y=>'<option value="'+y+'">'+y+'</option>').join('');$('soMonth').value=String(new Date().getMonth()+1).padStart(2,'0');$('soYear').value=String(new Date().getFullYear());$('closePreview').addEventListener('click',()=>{$('previewModal').style.display='none';$('previewBody').innerHTML=''});$('previewModal').addEventListener('click',e=>{if(e.target===$('previewModal'))$('previewModal').style.display='none'});$('loginForm').addEventListener('submit',async ev=>{ev.preventDefault();const btn=$('loginBtn'),msg=$('loginMsg');btn.disabled=true;msg.textContent='Memeriksa kata sandi…';try{const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',cache:'no-store',body:JSON.stringify({password:$('adminPassword').value})});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Login gagal.');$('adminPassword').value='';try{sessionStorage.setItem('adlAdminSessionUI','1')}catch(e){}document.documentElement.classList.remove('adl-session-restoring');msg.textContent='Login berhasil. Memuat berkas…';await load();if(!$('adminBar').classList.contains('hidden'))msg.textContent='';}catch(e){msg.textContent=e.message||'Login gagal.'}finally{btn.disabled=false}});$('logoutBtn').addEventListener('click',async()=>{$('sfRecords').innerHTML='';$('sfMsg').textContent='';try{await fetch('/api/admin/logout',{method:'POST',credentials:'same-origin',cache:'no-store'})}catch(e){}try{sessionStorage.removeItem('adlAdminSessionUI')}catch(e){}document.documentElement.classList.remove('adl-session-restoring');$('loginBox').classList.remove('hidden');$('adminBar').classList.add('hidden');$('total').textContent='—';$('branchesCount').textContent='—';$('size').textContent='—';$('list').innerHTML='<div class="empty">Silakan login untuk melihat berkas.</div>';$('status').textContent='Anda sudah keluar.';allFiles=[]});load();setInterval(()=>{if(!$('adminBar').classList.contains('hidden')){const y=window.scrollY;load().finally(()=>{if(Math.abs(window.scrollY-y)>8)window.scrollTo({top:y,behavior:'instant'})})}},30000);if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
 
 // === ADL DEVICE MONITORING DASHBOARD (tambahan terpisah) ===
+
 async function loadDeviceMonitoring(){
- const token=$('monitorToken').value.trim(),status=$('monitorStatus'),list=$('monitorList');
- if(!token){status.textContent='Masukkan token monitoring terlebih dahulu.';return}
+ const status=$('monitorStatus');
+ const list=$('monitorList');
+ const btn=$('monitorLoad');
+
+ if($('adminBar').classList.contains('hidden'))return;
+ if(btn)btn.disabled=true;
  status.textContent='Memuat perangkat...';
+
  try{
-  const r=await fetch('/api/monitor/devices',{headers:{'X-Monitor-Token':token},cache:'no-store'}),d=await r.json();
+  const r=await fetch('/api/monitor/devices',{
+   credentials:'same-origin',
+   cache:'no-store'
+  });
+  const d=await r.json();
   if(!r.ok||!d.ok)throw Error(d.error||('HTTP '+r.status));
-  const devices=Array.isArray(d.devices)?d.devices:[],now=Date.now(),online=devices.filter(x=>now-Date.parse(x.lastSeen||0)<=120000);
-  $('monitorOnline').textContent=online.length;$('monitorOffline').textContent=devices.length-online.length;$('monitorTotal').textContent=devices.length;
-  devices.sort((a,b)=>String(b.lastSeen||'').localeCompare(String(a.lastSeen||'')));
-  list.innerHTML=devices.length?devices.map(x=>{const isOn=now-Date.parse(x.lastSeen||0)<=120000;const dt=v=>v?new Date(v).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'}):'-';return '<div class="file"><b>'+esc(x.branch||'Cabang belum dipilih')+'</b> <span class="badge '+(isOn?'done':'pending')+'">'+(isOn?'ONLINE':'OFFLINE')+'</span><div class="meta">'+esc(x.brand||'')+' '+esc(x.model||'Perangkat tidak diketahui')+'<br>'+esc(x.os||'')+' • '+esc(x.browser||'')+'<br>Pertama terlihat: '+dt(x.firstSeen)+'<br>Terakhir aktif: '+dt(x.lastSeen)+'</div></div>'}).join(''):'<div class="empty">Belum ada perangkat yang terdeteksi.</div>';
-  status.textContent='Data diperbarui: '+new Date().toLocaleTimeString('id-ID');
- }catch(e){status.textContent='Gagal memuat monitoring: '+e.message}
+
+  const devices=Array.isArray(d.devices)?d.devices:[];
+  const now=Date.now();
+  const online=devices.filter(x=>
+   now-Date.parse(x.lastSeen||0)<=120000
+  );
+
+  $('monitorOnline').textContent=online.length;
+  $('monitorOffline').textContent=devices.length-online.length;
+  $('monitorTotal').textContent=devices.length;
+
+  devices.sort((a,b)=>
+   String(b.lastSeen||'').localeCompare(String(a.lastSeen||''))
+  );
+
+  list.innerHTML=devices.length?devices.map(x=>{
+   const isOn=now-Date.parse(x.lastSeen||0)<=120000;
+   const dt=v=>v?new Date(v).toLocaleString('id-ID',{
+    dateStyle:'medium',timeStyle:'short'
+   }):'-';
+
+   return '<div class="file"><b>'+
+   esc(x.branch||'Cabang belum dipilih')+
+   '</b> <span class="badge '+(isOn?'done':'pending')+'">'+
+   (isOn?'ONLINE':'OFFLINE')+
+   '</span><div class="meta">'+
+   esc(x.brand||'')+' '+esc(x.model||'Perangkat tidak diketahui')+
+   '<br>'+esc(x.os||'')+' • '+esc(x.browser||'')+
+   '<br>Pertama terlihat: '+dt(x.firstSeen)+
+   '<br>Terakhir aktif: '+dt(x.lastSeen)+
+   '</div></div>';
+  }).join(''):'<div class="empty">Belum ada perangkat yang terdeteksi.</div>';
+
+  status.textContent='Data diperbarui: '+
+   new Date().toLocaleTimeString('id-ID');
+
+ }catch(e){
+  status.textContent='Gagal memuat monitoring: '+e.message;
+ }finally{
+  if(btn)btn.disabled=false;
+ }
 }
+
 $('monitorLoad')?.addEventListener('click',loadDeviceMonitoring);
+
+setInterval(()=>{
+ if(!$('adminBar').classList.contains('hidden')){
+  loadDeviceMonitoring();
+ }
+},30000);
 
 </script>
 <script>
