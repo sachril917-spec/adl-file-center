@@ -14,7 +14,26 @@ function bytesToHex(bytes){return Array.from(new Uint8Array(bytes)).map(b=>b.toS
 function hexToBytes(hex){if(typeof hex!=="string"||!/^(?:[a-f0-9]{2})+$/i.test(hex))return null;return new Uint8Array(hex.match(/.{2}/g).map(v=>parseInt(v,16)));}
 async function adminMac(secret,message){const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(secret),{name:"HMAC",hash:"SHA-256"},false,["sign"]);return bytesToHex(await crypto.subtle.sign("HMAC",key,new TextEncoder().encode(message)));}
 async function deriveAdminPassword(password,salt,iterations=ADMIN_PBKDF2_ITERATIONS){const material=await crypto.subtle.importKey("raw",new TextEncoder().encode(password),"PBKDF2",false,["deriveBits"]);return bytesToHex(await crypto.subtle.deriveBits({name:"PBKDF2",salt,iterations,hash:"SHA-256"},material,256));}
-async function getAdminCredential(env){const r=await s(env,ADMIN_PASSWORD_KEY,"GET");if(r.ok){const d=await r.json();if(d&&d.algorithm==="PBKDF2-SHA256"&&typeof d.salt==="string"&&typeof d.hash==="string"&&Number.isInteger(d.iterations))return {mode:"pbkdf2",...d};throw Error("Data kata sandi admin di Backblaze tidak valid.");}if(r.status===404&&env.ADMIN_PASSWORD)return {mode:"legacy",password:env.ADMIN_PASSWORD};if(r.status===404)return null;throw Error("Gagal membaca kata sandi admin dari Backblaze.");}
+async function getAdminCredential(env){
+  // Gunakan credential tersimpan di Backblaze jika dapat dibaca.
+  // Jika pembacaan gagal (mis. batas Class B), gunakan Secret ADMIN_PASSWORD
+  // sebagai cadangan agar login dan validasi sesi tidak ikut terkunci.
+  try {
+    const r=await s(env,ADMIN_PASSWORD_KEY,"GET");
+    if(r.ok){
+      const d=await r.json();
+      if(d&&d.algorithm==="PBKDF2-SHA256"&&typeof d.salt==="string"&&typeof d.hash==="string"&&Number.isInteger(d.iterations))return {mode:"pbkdf2",...d};
+      if(env.ADMIN_PASSWORD)return {mode:"legacy",password:String(env.ADMIN_PASSWORD)};
+      throw Error("Data kata sandi admin di Backblaze tidak valid dan Secret ADMIN_PASSWORD belum tersedia.");
+    }
+    if(r.status===404&&!env.ADMIN_PASSWORD)return null;
+    if(env.ADMIN_PASSWORD)return {mode:"legacy",password:String(env.ADMIN_PASSWORD)};
+    throw Error("Gagal membaca kata sandi admin dari Backblaze (HTTP "+r.status+") dan Secret ADMIN_PASSWORD belum tersedia.");
+  } catch(err) {
+    if(env.ADMIN_PASSWORD)return {mode:"legacy",password:String(env.ADMIN_PASSWORD)};
+    throw err;
+  }
+}
 async function verifyAdminPassword(input,credential){if(typeof input!=="string"||!credential||input.length>1024)return false;if(credential.mode==="legacy")return input===credential.password;const salt=hexToBytes(credential.salt);if(!salt||!Number.isInteger(credential.iterations)||credential.iterations<100000||credential.iterations>1000000)return false;const actual=hexToBytes(await deriveAdminPassword(input,salt,credential.iterations)),expected=hexToBytes(credential.hash);if(!actual||!expected||actual.length!==expected.length)return false;let diff=0;for(let i=0;i<actual.length;i++)diff|=actual[i]^expected[i];return diff===0;}
 async function adminSessionRole(req,env){const cookies=req.headers.get("Cookie")||"",item=cookies.split(";").map(x=>x.trim()).find(x=>x.startsWith(ADMIN_COOKIE+"="));if(!item)return null;const parts=item.slice(ADMIN_COOKIE.length+1).split(".");if(parts.length!==3||!/^[0-9]+$/.test(parts[0])||!["main","limited"].includes(parts[1])||!/^[a-f0-9]{64}$/.test(parts[2]))return null;const exp=Number(parts[0]),now=Math.floor(Date.now()/1000);if(!Number.isSafeInteger(exp)||exp<=now||exp>now+ADMIN_SESSION_SECONDS)return null;const credential=await getAdminCredential(env);if(!credential)return null;const secret=credential.mode==="pbkdf2"?"adl-pbkdf2:"+credential.hash:credential.password;const expected=await adminMac(secret,"adl-admin-v2:"+parts[0]+":"+parts[1]);return parts[2]===expected?parts[1]:null;}async function adminSessionValid(req,env){return !!(await adminSessionRole(req,env));}
 function adminOriginOK(req){return req.headers.get("Origin")===new URL(req.url).origin;}
