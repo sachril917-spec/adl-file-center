@@ -147,7 +147,13 @@ const branch = selectedBranch || "Belum memilih cabang";
       city: monitorText(cf.city, 100),
       region: monitorText(cf.region, 100),
       country: monitorText(cf.country, 80),
-      timezone: monitorText(cf.timezone, 80)
+      postalCode: monitorText(cf.postalCode, 20),
+      latitude: monitorText(cf.latitude, 32),
+      longitude: monitorText(cf.longitude, 32),
+      timezone: monitorText(cf.timezone, 80),
+      asn: Number.isFinite(Number(cf.asn)) ? Number(cf.asn) : null,
+      organization: monitorText(cf.asOrganization, 160),
+      colo: monitorText(cf.colo, 20)
     },
     firstSeen: old?.firstSeen || now,
     lastSeen: now
