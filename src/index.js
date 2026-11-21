@@ -51,20 +51,40 @@ function monitorText(v, max = 180) {
 }
 
 async function monitorRead(e) {
+  // Monitoring memakai Cloudflare D1 bila binding DB_MONITOR tersedia.
+  // Ini menghindari ketergantungan pada transaksi Class B Backblaze.
+  if (e.DB_MONITOR) {
+    const row = await e.DB_MONITOR.prepare(
+      "SELECT data_json FROM device_monitor WHERE id = 1"
+    ).first();
+    if (!row || !row.data_json) return [];
+    const d = JSON.parse(row.data_json);
+    return Array.isArray(d.devices) ? d.devices : [];
+  }
+
+  // Fallback kompatibilitas untuk instalasi lama yang belum memasang D1.
   const r = await s(e, DEVICE_MONITOR_KEY, "GET");
   if (r.status === 404) return [];
-  if (!r.ok) throw Error("Gagal membaca data monitoring.");
+  if (!r.ok) throw Error("Gagal membaca data monitoring dari penyimpanan.");
   const d = await r.json();
   return Array.isArray(d.devices) ? d.devices : [];
 }
 
 async function monitorWrite(e, devices) {
+  const payload = JSON.stringify({ devices, updatedAt: new Date().toISOString() });
+  if (e.DB_MONITOR) {
+    await e.DB_MONITOR.prepare(
+      "INSERT INTO device_monitor (id, data_json, updated_at) VALUES (1, ?, ?) " +
+      "ON CONFLICT(id) DO UPDATE SET data_json = excluded.data_json, updated_at = excluded.updated_at"
+    ).bind(payload, new Date().toISOString()).run();
+    return;
+  }
+
   const r = await s(
-    e, DEVICE_MONITOR_KEY, "PUT",
-    JSON.stringify({ devices, updatedAt: new Date().toISOString() }),
+    e, DEVICE_MONITOR_KEY, "PUT", payload,
     { "Content-Type": "application/json" }
   );
-  if (!r.ok) throw Error("Gagal menyimpan data monitoring.");
+  if (!r.ok) throw Error("Gagal menyimpan data monitoring ke penyimpanan.");
 }
 
 function monitorTokenOK(req, e) {
