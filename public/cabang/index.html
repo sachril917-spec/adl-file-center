@@ -73,21 +73,21 @@ main.show-sorter{min-height:calc(100vh - 36px)}
   <div class="menu-divider" aria-hidden="true"></div>
   <a class="main-menu" id="sortirExcelMenu" href="https://sobulananexcelsortir.netlify.app" target="_blank" rel="noopener noreferrer">
    <span class="menu-icon">▦</span>
-   <span><strong>SORTIR EXCEL BULANAN</strong><small>Untuk sortir dan mengolah file Excel bulanan</small></span>
+   <span><strong>SORTIR EXCEL SO BULANAN</strong><small>Untuk sortir dan mengolah file Excel bulanan</small></span>
   </a>
  </nav>
  <div class="tool-login-info" role="note">
-  <strong>LOGIN SORTIR EXCEL BULANAN</strong><br>
+  <strong>LOGIN SORTIR EXCEL SO BULANAN</strong><br>
   User: <strong>Sachril</strong><br>
   Password: <strong>321</strong>
  </div>
 </section>
 <section class="sorter-view" id="sorterView" aria-label="Aplikasi Sortir Excel">
  <div class="sorter-view-head">
-  <strong>Sortir Excel Bulanan — ADL</strong>
+  <strong>Sortir Excel SO Bulanan — ADL</strong>
   <button class="sorter-back" id="backToUpload" type="button">← Kembali ke Kirim Berkas</button>
  </div>
- <iframe class="sorter-frame" id="sorterFrame" title="Aplikasi Sortir Excel Bulanan" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+ <iframe class="sorter-frame" id="sorterFrame" title="Aplikasi Sortir Excel SO Bulanan" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </section>
 <hr class="form-separator">
 <section id="uploadSection" class="form-heading">
@@ -98,7 +98,7 @@ main.show-sorter{min-height:calc(100vh - 36px)}
 <div class="field"><label for="b"><span class="ico">▣</span><span>Cabang<small>Pilih cabang tempat Anda bekerja</small></span></label><select id="b" name="branch" required><option value="">Memuat daftar cabang...</option></select></div>
 <div class="field"><label for="category"><span class="ico">▱</span><span>Kategori laporan<small>Pilih jenis laporan yang akan dikirim</small></span></label><select id="category" required>
 <option value="Bukan SO">Bukan SO</option>
-<option value="File SO" selected>File SO (Stok Opname)</option>
+<option value="File SO">File SO (Stok Opname)</option>
 </select></div>
 <div class="field"><label for="t"><span class="ico">▤</span><span>Keterangan laporan (opsional)<small>Tambahkan keterangan agar mudah dikenali</small></span></label><input id="t" name="reportType" placeholder="Contoh: SO alat tulis bulan ini"></div>
 <div class="field"><label for="f"><span class="ico">↥</span><span>Pilih file<small>Upload file Excel, Word, atau PDF</small></span></label><input id="f" name="file" type="file" multiple required></div>
@@ -211,125 +211,4 @@ if(gagal===0){const sentBranch=branchSelect.value;form.reset();branchSelect.valu
 }finally{sendBtn.disabled=false}});
 loadBranches();setInterval(checkSO,30000);
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
-
-
-// === ADL DEVICE MONITORING V2 ===
-(()=>{
- const STORE_KEY='adl_device_monitor_id_v1';
- let deviceId='';
- try{
-  deviceId=localStorage.getItem(STORE_KEY)||'';
-  if(!deviceId){
-   deviceId=crypto.randomUUID?crypto.randomUUID():
-    'adl-'+Date.now()+'-'+Math.random().toString(16).slice(2);
-   localStorage.setItem(STORE_KEY,deviceId);
-  }
- }catch(e){
-  deviceId='adl-'+Date.now()+'-'+Math.random().toString(16).slice(2);
- }
-
- async function deviceInfo(){
-  const ua=navigator.userAgent||'';
-  let model='Perangkat Android';
-  let brand='Android';
-  let os='Tidak diketahui';
-  let browser='Browser tidak diketahui';
-
-  if(/Android/i.test(ua)){
-   const version=ua.match(/Android\s([0-9.]+)/i);
-   os='Android'+(version?' '+version[1]:'');
-   const m=ua.match(/;\s*([^;)]+)\s+Build\//i);
-   if(m) model=m[1].trim();
-
-   if(navigator.userAgentData){
-    try{
-     const d=await navigator.userAgentData.getHighEntropyValues(
-      ['model','platformVersion','fullVersionList']
-     );
-     if(d.model) model=d.model;
-    }catch(e){}
-   }
-
-   if(/SM-|Samsung/i.test(model)) brand='Samsung';
-   else if(/Redmi|POCO|Xiaomi/i.test(model)) brand='Xiaomi';
-   else if(/OPPO|CPH/i.test(model)) brand='OPPO';
-   else if(/vivo|V\d{4}/i.test(model)) brand='vivo';
-   else if(/Pixel/i.test(model)) brand='Google';
-   else if(/Infinix|X\d{3}/i.test(model)) brand='Infinix';
-   else if(/TECNO|KI\d/i.test(model)) brand='TECNO';
-   else if(model==='Perangkat Android'){
-    brand='Android';
-    model='Model tidak dibagikan browser';
-   }
-  }
-  else if(/iPhone|iPad/i.test(ua)){
-   os='iOS';
-   model=/iPad/i.test(ua)?'iPad':'iPhone';
-   brand='Apple';
-  }
-  else if(/Windows/i.test(ua)){
-   os='Windows';
-   model='Komputer Windows';
-   brand='PC';
-  }
-  else if(/Mac OS/i.test(ua)){
-   os='macOS';
-   model='Mac';
-   brand='Apple';
-  }
-
-  if(/Edg\//.test(ua)) browser='Microsoft Edge';
-  else if(/Chrome\//.test(ua)) browser='Google Chrome';
-  else if(/Firefox\//.test(ua)) browser='Firefox';
-  else if(/Safari\//.test(ua)) browser='Safari';
-
-  return {
-   model,brand,os,browser,
-   userAgent:ua.slice(0,350)
-  };
- }
-
- let sending=false;
-
- async function beat(){
-  if(!navigator.onLine||sending)return;
-  sending=true;
-  try{
-   const info=await deviceInfo();
-   const payload={
-    deviceId,
-    branch:branchSelect?.value||'',
-    ...info,
-    page:'cabang',
-    seenAt:new Date().toISOString()
-   };
-   await fetch('/api/monitor/heartbeat',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(payload),
-    cache:'no-store',
-    keepalive:true
-   });
-  }catch(e){
-   console.warn('ADL monitoring:',e);
-  }finally{
-   sending=false;
-  }
- }
-
- if(document.readyState==='loading')
-  document.addEventListener('DOMContentLoaded',beat,{once:true});
- else beat();
-
- branchSelect?.addEventListener('change',beat);
- window.addEventListener('pageshow',beat);
- window.addEventListener('focus',beat);
- window.addEventListener('online',beat);
- document.addEventListener('visibilitychange',()=>{
-  if(!document.hidden)beat();
- });
- setInterval(beat,30000);
-})();
-
-
 </script></body></html>
