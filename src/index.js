@@ -159,15 +159,17 @@ const branch = selectedBranch || "Belum memilih cabang";
     lastSeen: now
   };
 
+  // Riwayat perangkat disimpan permanen: jangan menghapus perangkat
+  // OFFLINE berdasarkan umur dan jangan membatasi jumlah catatan.
+  // Satu deviceId tetap menghasilkan satu baris; ID lama yang cocok
+  // melalui fingerprint diperbarui, bukan dibuat sebagai perangkat baru.
   const next = devices.filter(x =>
     x.deviceId !== deviceId &&
     (!old || x.deviceId !== old.deviceId) &&
-    !(x.userAgent && fingerprint(x) === currentFingerprint) &&
-    Date.now() - Date.parse(x.lastSeen || 0) < 90 * 86400000
+    !(x.userAgent && fingerprint(x) === currentFingerprint)
   );
 
   next.push(item);
-  if (next.length > 500) next.splice(0, next.length - 500);
 
   await monitorWrite(e, next);
   return J({ ok: true, deviceId, lastSeen: now });
