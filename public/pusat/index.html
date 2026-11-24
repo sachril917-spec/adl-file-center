@@ -480,13 +480,17 @@ async function loadDeviceMonitoring(){
   const rawDevices=Array.isArray(d.devices)?d.devices:[];
   const now=Date.now();
 
-  // Satukan catatan lama dengan fingerprint perangkat/browser yang sama.
+  // Gunakan deviceId sebagai identitas utama agar perangkat berbeda
+  // tidak tergabung hanya karena memakai browser/user-agent yang sama.
+  // Fingerprint hanya menjadi cadangan untuk catatan lama tanpa deviceId.
   const fingerprint=x=>[
    x.brand,x.model,x.os,x.browser,x.userAgent
   ].map(v=>String(v||'').trim().toLowerCase()).join('|');
   const grouped=new Map();
   rawDevices.forEach(x=>{
-   const key=x.userAgent?fingerprint(x):(x.deviceId||'');
+   const key=x.deviceId
+    ? 'id:'+String(x.deviceId)
+    : 'legacy:'+fingerprint(x);
    const prev=grouped.get(key);
    if(!prev){grouped.set(key,{...x});return;}
    const first=[prev.firstSeen,x.firstSeen].filter(Boolean).sort()[0]||null;
