@@ -166,6 +166,21 @@ renderDaily();
 
 const branchSelect=document.getElementById('b'),form=document.getElementById('uploadForm'),message=document.getElementById('msg'),sendBtn=document.getElementById('sendBtn');
 const category=document.getElementById('category'),allBranchStatus=document.getElementById('allBranchStatus'),periodLabel=document.getElementById('periodLabel');
+// Heartbeat monitoring berjalan di latar belakang tanpa indikator koneksi di halaman.
+const deviceIdKey='adl-cabang-device-id';
+let deviceId=localStorage.getItem(deviceIdKey);
+if(!deviceId){
+ deviceId=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'adl-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+ localStorage.setItem(deviceIdKey,deviceId);
+}
+async function sendMonitorHeartbeat(){
+ try{
+  const ua=navigator.userAgent||'';
+  const os=/Android/i.test(ua)?'Android':/Windows/i.test(ua)?'Windows':/iPhone|iPad/i.test(ua)?'iOS':'Perangkat lain';
+  const browser=/Edg\//i.test(ua)?'Edge':/Chrome\//i.test(ua)?'Chrome':/Firefox\//i.test(ua)?'Firefox':/Safari\//i.test(ua)?'Safari':'Browser lain';
+  await fetch('/api/monitor/heartbeat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:'cabang',deviceId,branch:branchSelect.value||'',brand:'Unknown',model:'Unknown',os,browser,userAgent:ua}),cache:'no-store',keepalive:true});
+ }catch(e){/* Monitoring tidak boleh mengganggu upload atau status SO. */}
+}
 let branchNames=[];
 const safe=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function monthPrefix(){const d=new Date();return d.getUTCFullYear()+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'}
@@ -209,6 +224,10 @@ try{const response=await fetch('/api/upload',{method:'POST',body:data});const re
 message.textContent='Selesai. Berhasil: '+berhasil+', gagal: '+gagal+'.';
 if(gagal===0){const sentBranch=branchSelect.value;form.reset();branchSelect.value=sentBranch;await checkSO()}
 }finally{sendBtn.disabled=false}});
-loadBranches();setInterval(checkSO,30000);
+loadBranches();
+sendMonitorHeartbeat();
+branchSelect.addEventListener('change',sendMonitorHeartbeat);
+setInterval(checkSO,30000);
+setInterval(sendMonitorHeartbeat,30000);
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
 </script></body></html>
