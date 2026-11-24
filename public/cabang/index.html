@@ -173,12 +173,28 @@ if(!deviceId){
  deviceId=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'adl-'+Date.now()+'-'+Math.random().toString(36).slice(2);
  localStorage.setItem(deviceIdKey,deviceId);
 }
+function getDeviceIdentity(ua){
+ const androidModel=(ua.match(/Android[^;)]*;\s*([^;)]+?)(?:\s+Build\/[^;)]+)?[;)]/i)||[])[1];
+ const cleanModel=(androidModel||'').trim().replace(/\s+Build\/.*/i,'');
+ if(/SM-|GT-|SCH-|SPH-|SAMSUNG/i.test(cleanModel)) return {brand:'Samsung',model:cleanModel};
+ if(/Redmi|Mi\s|POCO|M20|220|230|240/i.test(cleanModel)) return {brand:/POCO/i.test(cleanModel)?'POCO':/Redmi/i.test(cleanModel)?'Xiaomi':'Xiaomi',model:cleanModel};
+ if(/OPPO|CPH/i.test(cleanModel)) return {brand:'OPPO',model:cleanModel};
+ if(/vivo|V[0-9]{4}/i.test(cleanModel)) return {brand:'vivo',model:cleanModel};
+ if(/Pixel/i.test(cleanModel)) return {brand:'Google',model:cleanModel};
+ if(cleanModel && !/Linux|Android/i.test(cleanModel)) return {brand:'Android',model:cleanModel};
+ if(/Windows/i.test(ua)) return {brand:'PC',model:'Komputer Windows'};
+ if(/Macintosh|Mac OS/i.test(ua)) return {brand:'Apple',model:'Mac'};
+ if(/iPhone/i.test(ua)) return {brand:'Apple',model:'iPhone'};
+ if(/iPad/i.test(ua)) return {brand:'Apple',model:'iPad'};
+ return {brand:/Android/i.test(ua)?'Android':'Perangkat',model:/Android/i.test(ua)?'HP Android':'Perangkat tidak teridentifikasi'};
+}
 async function sendMonitorHeartbeat(){
  try{
   const ua=navigator.userAgent||'';
   const os=/Android/i.test(ua)?'Android':/Windows/i.test(ua)?'Windows':/iPhone|iPad/i.test(ua)?'iOS':'Perangkat lain';
   const browser=/Edg\//i.test(ua)?'Edge':/Chrome\//i.test(ua)?'Chrome':/Firefox\//i.test(ua)?'Firefox':/Safari\//i.test(ua)?'Safari':'Browser lain';
-  await fetch('/api/monitor/heartbeat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:'cabang',deviceId,branch:branchSelect.value||'',brand:'Unknown',model:'Unknown',os,browser,userAgent:ua}),cache:'no-store',keepalive:true});
+  const identity=getDeviceIdentity(ua);
+  await fetch('/api/monitor/heartbeat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:'cabang',deviceId,branch:branchSelect.value||'',brand:identity.brand,model:identity.model,os,browser,userAgent:ua}),cache:'no-store',keepalive:true});
  }catch(e){/* Monitoring tidak boleh mengganggu upload atau status SO. */}
 }
 let branchNames=[];
