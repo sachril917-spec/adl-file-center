@@ -173,28 +173,64 @@ if(!deviceId){
  deviceId=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'adl-'+Date.now()+'-'+Math.random().toString(36).slice(2);
  localStorage.setItem(deviceIdKey,deviceId);
 }
-function getDeviceIdentity(ua){
- const androidModel=(ua.match(/Android[^;)]*;\s*([^;)]+?)(?:\s+Build\/[^;)]+)?[;)]/i)||[])[1];
- const cleanModel=(androidModel||'').trim().replace(/\s+Build\/.*/i,'');
- if(/SM-|GT-|SCH-|SPH-|SAMSUNG/i.test(cleanModel)) return {brand:'Samsung',model:cleanModel};
- if(/Redmi|Mi\s|POCO|M20|220|230|240/i.test(cleanModel)) return {brand:/POCO/i.test(cleanModel)?'POCO':/Redmi/i.test(cleanModel)?'Xiaomi':'Xiaomi',model:cleanModel};
- if(/OPPO|CPH/i.test(cleanModel)) return {brand:'OPPO',model:cleanModel};
- if(/vivo|V[0-9]{4}/i.test(cleanModel)) return {brand:'vivo',model:cleanModel};
- if(/Pixel/i.test(cleanModel)) return {brand:'Google',model:cleanModel};
- if(cleanModel && !/Linux|Android/i.test(cleanModel)) return {brand:'Android',model:cleanModel};
- if(/Windows/i.test(ua)) return {brand:'PC',model:'Komputer Windows'};
- if(/Macintosh|Mac OS/i.test(ua)) return {brand:'Apple',model:'Mac'};
- if(/iPhone/i.test(ua)) return {brand:'Apple',model:'iPhone'};
- if(/iPad/i.test(ua)) return {brand:'Apple',model:'iPad'};
- return {brand:/Android/i.test(ua)?'Android':'Perangkat',model:/Android/i.test(ua)?'HP Android':'Perangkat tidak teridentifikasi'};
+function parseAndroidVersion(ua){
+ const m=String(ua||'').match(/Android\s+([0-9]+(?:\.[0-9]+)*)/i);
+ return m ? m[1] : '';
+}
+function identifyModel(raw){
+ const model=String(raw||'').trim().replace(/\s+Build\/.*$/i,'').replace(/[;)]+$/,'').trim();
+ if(!model || /^(K|UNKNOWN|ANDROID|LINUX|MOBILE|BUILD|WV)$/i.test(model)) return null;
+ if(/^(SM-[A-Z0-9]+|GT-[A-Z0-9]+|SCH-[A-Z0-9]+|SPH-[A-Z0-9]+)$/i.test(model)) return {brand:'Samsung',model:model.toUpperCase()};
+ if(/^(CPH[A-Z0-9]+)$/i.test(model)) return {brand:'OPPO',model:model.toUpperCase()};
+ if(/^(V[0-9]{4}[A-Z0-9]*)$/i.test(model)) return {brand:'vivo',model:model.toUpperCase()};
+ if(/^(RMX[A-Z0-9]+)$/i.test(model)) return {brand:'realme',model:model.toUpperCase()};
+ if(/^(M[0-9]{4}[A-Z0-9]*)$/i.test(model)) return {brand:'Xiaomi',model:model.toUpperCase()};
+ if(/^(PIXEL\s?[A-Z0-9 ]*)$/i.test(model)) return {brand:'Google',model:model};
+ if(/Redmi|POCO|Xiaomi|Pixel|iPhone|iPad/i.test(model)) return {brand:/POCO/i.test(model)?'POCO':/Redmi|Xiaomi/i.test(model)?'Xiaomi':/Pixel/i.test(model)?'Google': 'Apple',model:model};
+ return null;
+}
+async function getDeviceDetails(ua){
+ let identity=null, androidVersion=parseAndroidVersion(ua), os='';
+ // User-Agent Client Hints can provide the actual model on supported Android Chrome browsers.
+ try{
+  if(navigator.userAgentData && navigator.userAgentData.getHighEntropyValues){
+   const hints=await navigator.userAgentData.getHighEntropyValues(['model','platformVersion','platform']);
+   if(hints.model) identity=identifyModel(hints.model);
+   if(String(hints.platform||'').toLowerCase()==='android' && hints.platformVersion){
+    const v=String(hints.platformVersion).split('.')[0];
+    if(/^\d+$/.test(v)) androidVersion=v;
+   }
+  }
+ }catch(e){}
+ if(!identity && /Android/i.test(ua)){
+  // Standard Android UA: Android 10; SM-A057F Build/...
+  const m=ua.match(/Android\s+[0-9.]+\s*;\s*([^;()]+?)(?:\s+Build\/[^;)]*)?(?:[;)]|$)/i);
+  if(m) identity=identifyModel(m[1]);
+ }
+ if(/Android/i.test(ua)){
+  os=androidVersion?'Android '+androidVersion:'Android (versi tidak terdeteksi)';
+  if(!identity) identity={brand:'Android',model:'Model HP tidak terdeteksi'};
+ }else if(/Windows NT 10\.0/i.test(ua)){
+  os='Windows 10/11'; identity={brand:'PC',model:'Komputer Windows'};
+ }else if(/Windows NT 6\.3/i.test(ua)){
+  os='Windows 8.1'; identity={brand:'PC',model:'Komputer Windows'};
+ }else if(/Windows NT 6\.1/i.test(ua)){
+  os='Windows 7'; identity={brand:'PC',model:'Komputer Windows'};
+ }else if(/iPhone|iPad/i.test(ua)){
+  os='iOS'; identity={brand:'Apple',model:/iPad/i.test(ua)?'iPad':'iPhone'};
+ }else if(/Macintosh|Mac OS/i.test(ua)){
+  os='macOS'; identity={brand:'Apple',model:'Mac'};
+ }else{
+  os='Perangkat lain'; identity={brand:'Perangkat',model:'Model tidak terdeteksi'};
+ }
+ return {identity,os};
 }
 async function sendMonitorHeartbeat(){
  try{
   const ua=navigator.userAgent||'';
-  const os=/Android/i.test(ua)?'Android':/Windows/i.test(ua)?'Windows':/iPhone|iPad/i.test(ua)?'iOS':'Perangkat lain';
+  const details=await getDeviceDetails(ua);
   const browser=/Edg\//i.test(ua)?'Edge':/Chrome\//i.test(ua)?'Chrome':/Firefox\//i.test(ua)?'Firefox':/Safari\//i.test(ua)?'Safari':'Browser lain';
-  const identity=getDeviceIdentity(ua);
-  await fetch('/api/monitor/heartbeat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:'cabang',deviceId,branch:branchSelect.value||'',brand:identity.brand,model:identity.model,os,browser,userAgent:ua}),cache:'no-store',keepalive:true});
+  await fetch('/api/monitor/heartbeat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:'cabang',deviceId,branch:branchSelect.value||'',brand:details.identity.brand,model:details.identity.model,os:details.os,browser,userAgent:ua}),cache:'no-store',keepalive:true});
  }catch(e){/* Monitoring tidak boleh mengganggu upload atau status SO. */}
 }
 let branchNames=[];
